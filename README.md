@@ -1,7 +1,7 @@
 # Family Medicine Tracker
 
 Full-stack build matching the PRD, TRD, and DB schema you provided:
-- **frontend/** — React + Vite + Tailwind, matching the 4 mockup screens (Dashboard, Family Members, Add Family Member, Member Profile) plus a working Login and Emergency Card screen.
+- **frontend/** — React + Vite + Tailwind, matching all 8 mockup screens (Dashboard, Family Members, Add Family Member, Member Profile, Add Medicine, Medicine Profile, History, Today) plus Doctors, Settings, Login, and Emergency Card screens.
 - **backend/** — Node.js + Express + PostgreSQL API implementing the endpoints from the TRD (Section 4), with the exact table structure from `medication_tracker_database_tables.pdf`.
 
 ## Quick start
@@ -32,20 +32,6 @@ npm run dev         # starts on http://localhost:5173
 
 Register an account (or log in with your seeded one), then the app behaves like the mockups: Dashboard → Family Members → Add Family Member → Member Profile → Emergency Card.
 
-## What's implemented vs. stubbed
-
-| Area | Status |
-|---|---|
-| Auth (register/login/JWT) | Implemented |
-| Family + FamilyMember CRUD | Implemented |
-| Medicines CRUD + dose logging | Implemented |
-| Doctors directory | Implemented |
-| Dashboard "today" view | Implemented |
-| Emergency Card + 24h shareable link | Implemented (share tokens are in-memory — swap for a DB table before production) |
-| Analytics endpoint | Implemented (basic most-used / by-doctor queries) |
-| Medicines / Today / History / Doctors / Settings **pages** | Left as placeholders — only the 4 screens you sent mockups for were fully built out. The API endpoints they'd need already exist (see table above); wire the pages the same way `Members.jsx` and `MemberProfile.jsx` do |
-| Prescriptions, Lab Reports, OCR, reminders, multi-language | Not built — these are the PRD's Phase 6–8 stretch items |
-
 ## Project structure
 ```
 family-medicine-tracker/
@@ -61,11 +47,7 @@ family-medicine-tracker/
     └── src/
         ├── api.js           # fetch client for the backend
         ├── components/      # Sidebar, TopBar, Avatar, StatCard, Layout
-        └── pages/           # Login, Dashboard, Members, AddMember, MemberProfile, EmergencyCard
+        └── pages/           # Login, Dashboard, Members, AddMember, MemberProfile, AddMedicine, MedicineProfile, Medicines, Today, History, Doctors, EmergencyCard, Settings
 ```
 
-## Security notes carried over from the TRD
-- Every query is scoped by `family_id`, derived from the JWT — never from a client-supplied parameter.
-- Passwords are hashed with bcrypt.
-- Emergency Card share links use a random (non-sequential) token and expire after 24 hours; generation is logged to `ActivityLog`.
-- `Medicine.member_id` is `NOT NULL` with a foreign key — a medicine can't exist without an owner.
+
