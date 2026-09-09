@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Stethoscope, ArrowLeft, FileText, Pill, ChevronRight, PlusCircle } from "lucide-react";
+import { Stethoscope, ArrowLeft, FileText, Pill, ChevronRight, PlusCircle, Pencil, Trash2, MoreVertical } from "lucide-react";
 import { api } from "../api";
 import Avatar from "../components/Avatar";
 
@@ -22,9 +22,11 @@ export default function Doctors() {
   const [referredMeds, setReferredMeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({ doctor_name: "", specialization: "", hospital: "", clinic: "", city: "", state: "", phone: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
 
   const fetchDoctors = async () => {
     const docs = await api.getDoctors();
@@ -40,7 +42,7 @@ export default function Doctors() {
   }, []);
 
   useEffect(() => {
-    if (!selectedDoctor || isAdding) return;
+    if (!selectedDoctor || isAdding || isEditing) return;
     (async () => {
       const family = await api.getFamily();
       const meds = [];
@@ -54,11 +56,11 @@ export default function Doctors() {
       }
       setReferredMeds(meds);
     })();
-  }, [selectedDoctor, isAdding]);
+  }, [selectedDoctor, isAdding, isEditing]);
 
   const updateForm = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const handleAddDoctor = async () => {
+  const handleSaveDoctor = async () => {
     if (!form.doctor_name) {
       setError("Doctor name is required");
       return;
@@ -66,16 +68,46 @@ export default function Doctors() {
     setSubmitting(true);
     setError("");
     try {
-      const newDoc = await api.addDoctor(form);
-      const docs = await fetchDoctors();
-      setIsAdding(false);
-      setSelectedDoctor(newDoc);
-      setForm({ doctor_name: "", specialization: "", hospital: "", clinic: "", city: "", state: "", phone: "" });
+      if (isEditing) {
+        const updatedDoc = await api.updateDoctor(selectedDoctor.doctor_id, form);
+        await fetchDoctors();
+        setIsEditing(false);
+        setSelectedDoctor(updatedDoc);
+      } else {
+        const newDoc = await api.addDoctor(form);
+        await fetchDoctors();
+        setIsAdding(false);
+        setSelectedDoctor(newDoc);
+        setForm({ doctor_name: "", specialization: "", hospital: "", clinic: "", city: "", state: "", phone: "" });
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleDeleteDoctor = async () => {
+    if (confirm("Are you sure you want to delete this doctor? They will be removed from all associated medicines.")) {
+      await api.deleteDoctor(selectedDoctor.doctor_id);
+      const docs = await fetchDoctors();
+      setSelectedDoctor(docs[0] || null);
+      setShowMenu(false);
+    }
+  };
+
+  const startEdit = () => {
+    setForm({
+      doctor_name: selectedDoctor.doctor_name || "",
+      specialization: selectedDoctor.specialization || "",
+      hospital: selectedDoctor.hospital || "",
+      clinic: selectedDoctor.clinic || "",
+      city: selectedDoctor.city || "",
+      state: selectedDoctor.state || "",
+      phone: selectedDoctor.phone || ""
+    });
+    setIsEditing(true);
+    setShowMenu(false);
   };
 
   if (loading) return <div className="p-8 text-[13px] text-[#8A6A75]">Loading doctors...</div>;
@@ -93,7 +125,7 @@ export default function Doctors() {
           </div>
         </div>
         <button 
-          onClick={() => { setIsAdding(true); setSelectedDoctor(null); }}
+          onClick={() => { setIsAdding(true); setIsEditing(false); setForm({ doctor_name: "", specialization: "", hospital: "", clinic: "", city: "", state: "", phone: "" }); setSelectedDoctor(null); }}
           className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium"
         >
           <PlusCircle size={15} /> Add Doctor
@@ -105,9 +137,9 @@ export default function Doctors() {
           {doctors.map(d => (
             <div 
               key={d.doctor_id}
-              onClick={() => { setIsAdding(false); setSelectedDoctor(d); }}
+              onClick={() => { setIsAdding(false); setIsEditing(false); setSelectedDoctor(d); }}
               className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-colors ${
-                selectedDoctor?.doctor_id === d.doctor_id && !isAdding
+                selectedDoctor?.doctor_id === d.doctor_id && !isAdding && !isEditing
                 ? 'bg-[#FFF5F8] border-[#F6E8ED]' 
                 : 'bg-white border-border hover:border-[#EAD3DA]'
               }`}
@@ -126,15 +158,15 @@ export default function Doctors() {
         </div>
 
         <div className="border-l border-border pl-8 overflow-y-auto pb-8">
-          {isAdding ? (
+          {isAdding || isEditing ? (
             <div>
               <button 
-                onClick={() => { setIsAdding(false); setSelectedDoctor(doctors[0] || null); }}
+                onClick={() => { setIsAdding(false); setIsEditing(false); if (!selectedDoctor) setSelectedDoctor(doctors[0] || null); }}
                 className="flex items-center gap-1.5 text-[13px] text-rose font-medium mb-6"
               >
                 <ArrowLeft size={15} /> Cancel
               </button>
-              <h2 className="text-[20px] font-semibold text-[#2B1420] mb-6">Add New Doctor</h2>
+              <h2 className="text-[20px] font-semibold text-[#2B1420] mb-6">{isEditing ? "Edit Doctor" : "Add New Doctor"}</h2>
               
               <div className="space-y-4 max-w-lg">
                 <Field label="Doctor Name" required>
@@ -167,35 +199,66 @@ export default function Doctors() {
 
                 <div className="pt-4">
                   <button 
-                    onClick={handleAddDoctor} 
+                    onClick={handleSaveDoctor} 
                     disabled={submitting} 
                     className="w-full flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium disabled:opacity-60"
                   >
-                    {submitting ? "Saving..." : "Save Doctor"}
+                    {submitting ? "Saving..." : isEditing ? "Save Changes" : "Save Doctor"}
                   </button>
                 </div>
               </div>
             </div>
           ) : selectedDoctor ? (
             <div>
-              <button 
-                onClick={() => setSelectedDoctor(null)}
-                className="flex items-center gap-1.5 text-[13px] text-rose font-medium mb-6 lg:hidden"
-              >
-                <ArrowLeft size={15} /> Back to Doctors
-              </button>
+              <div className="flex justify-between items-start mb-6 lg:hidden">
+                <button 
+                  onClick={() => setSelectedDoctor(null)}
+                  className="flex items-center gap-1.5 text-[13px] text-rose font-medium"
+                >
+                  <ArrowLeft size={15} /> Back to Doctors
+                </button>
+              </div>
               
-              <div className="flex gap-6 items-start mb-10 pb-10 border-b border-border">
-                <Avatar name={selectedDoctor.doctor_name} size={100} />
-                <div className="pt-2 text-[14px]">
-                  <h2 className="text-[24px] font-semibold text-[#2B1420] mb-3">{selectedDoctor.doctor_name}</h2>
-                  <div className="grid grid-cols-[100px_1fr] gap-y-2 text-[#2B1420]">
-                    <div className="text-[#8A6A75]">Specialization:</div>
-                    <div className="font-medium text-rose">{selectedDoctor.specialization || "General"}</div>
-                    <div className="text-[#8A6A75]">Hospital:</div>
-                    <div className="font-medium">{selectedDoctor.hospital || selectedDoctor.clinic || "N/A"}</div>
-                    <div className="text-[#8A6A75]">Phone:</div>
-                    <div className="font-medium font-mono">{selectedDoctor.phone || "N/A"}</div>
+              <div className="flex justify-between items-start mb-10 pb-10 border-b border-border">
+                <div className="flex gap-6 items-start">
+                  <Avatar name={selectedDoctor.doctor_name} size={100} />
+                  <div className="pt-2 text-[14px]">
+                    <h2 className="text-[24px] font-semibold text-[#2B1420] mb-3">{selectedDoctor.doctor_name}</h2>
+                    <div className="grid grid-cols-[100px_1fr] gap-y-2 text-[#2B1420]">
+                      <div className="text-[#8A6A75]">Specialization:</div>
+                      <div className="font-medium text-rose">{selectedDoctor.specialization || "General"}</div>
+                      <div className="text-[#8A6A75]">Hospital:</div>
+                      <div className="font-medium">{selectedDoctor.hospital || selectedDoctor.clinic || "N/A"}</div>
+                      <div className="text-[#8A6A75]">Phone:</div>
+                      <div className="font-medium font-mono">{selectedDoctor.phone || "N/A"}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={startEdit}
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E9AFC0] rounded-lg text-[13px] font-medium text-rose hover:bg-[#FDF0F3]"
+                  >
+                    <Pencil size={15} /> Edit
+                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setShowMenu(!showMenu)}
+                      className="p-2 border border-border bg-white rounded-lg text-[#8A6A75] hover:border-[#EAD3DA]"
+                    >
+                      <MoreVertical size={20} />
+                    </button>
+                    {showMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-10">
+                        <button 
+                          onClick={handleDeleteDoctor}
+                          className="w-full flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 text-left font-medium"
+                        >
+                          <Trash2 size={16} /> Delete Doctor
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

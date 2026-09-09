@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Users, Droplet, Contact, PlusCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { ArrowLeft, Users, Droplet, Contact, PlusCircle, Save } from "lucide-react";
 import { api } from "../api";
 
 const inputClass = "w-full border border-[#EAD3DA] rounded-lg px-3 py-2.5 text-[13px] outline-none focus:border-rose placeholder:text-[#B58C97]";
@@ -17,13 +17,44 @@ function Field({ label, required, children }) {
 }
 
 export default function AddMember() {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isEdit = location.pathname.includes('/edit');
+
   const [form, setForm] = useState({
     name: "", date_of_birth: "", gender: "", relationship: "", phone: "", email: "", occupation: "",
     blood_group: "", allergies: "", chronic_conditions: "", emergency_contact_name: "", emergency_contact_relationship: "", emergency_contact_phone: "",
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(isEdit);
+
+  useEffect(() => {
+    if (isEdit) {
+      api.getMember(id).then(member => {
+        setForm({
+          name: member.name || "",
+          date_of_birth: member.date_of_birth ? new Date(member.date_of_birth).toISOString().split('T')[0] : "",
+          gender: member.gender || "",
+          relationship: member.relationship || "",
+          phone: member.phone || "",
+          email: member.email || "",
+          occupation: member.occupation || "",
+          blood_group: member.blood_group || "",
+          allergies: member.allergies || "",
+          chronic_conditions: member.chronic_conditions || "",
+          emergency_contact_name: member.emergency_contact_name || "",
+          emergency_contact_relationship: member.emergency_contact_relationship || "",
+          emergency_contact_phone: member.emergency_contact_phone || "",
+        });
+        setLoading(false);
+      }).catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+    }
+  }, [id, isEdit]);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -35,8 +66,13 @@ export default function AddMember() {
     setSubmitting(true);
     setError("");
     try {
-      await api.addMember(form);
-      navigate("/members");
+      if (isEdit) {
+        await api.updateMember(id, form);
+        navigate(`/members/${id}`);
+      } else {
+        await api.addMember(form);
+        navigate("/members");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,13 +80,17 @@ export default function AddMember() {
     }
   };
 
+  if (loading) return <div className="p-8 text-[13px] text-[#8A6A75]">Loading...</div>;
+
   return (
     <div className="p-8">
-      <button onClick={() => navigate("/members")} className="flex items-center gap-1.5 text-[13px] text-rose font-medium mb-3">
-        <ArrowLeft size={15} /> Back to Members
+      <button onClick={() => isEdit ? navigate(`/members/${id}`) : navigate("/members")} className="flex items-center gap-1.5 text-[13px] text-rose font-medium mb-3">
+        <ArrowLeft size={15} /> Back to {isEdit ? "Profile" : "Members"}
       </button>
-      <h1 className="text-[22px] font-semibold text-[#2B1420]">Add Family Member</h1>
-      <p className="text-[13px] text-[#8A6A75] mt-1 mb-6">Add a new member to your family to manage their medicines and health information.</p>
+      <h1 className="text-[22px] font-semibold text-[#2B1420]">{isEdit ? "Edit Family Member" : "Add Family Member"}</h1>
+      <p className="text-[13px] text-[#8A6A75] mt-1 mb-6">
+        {isEdit ? "Update member's information." : "Add a new member to your family to manage their medicines and health information."}
+      </p>
 
       <div className="bg-white rounded-2xl border border-border p-6 space-y-8 max-w-4xl">
         <section>
@@ -147,11 +187,12 @@ export default function AddMember() {
         {error && <p className="text-[12px] text-red-600">{error}</p>}
 
         <div className="flex justify-end gap-3 pt-2 border-t border-border">
-          <button onClick={() => navigate("/members")} className="px-5 py-2.5 rounded-lg border border-[#EAD3DA] text-[13px] font-medium text-[#2B1420]">
+          <button onClick={() => isEdit ? navigate(`/members/${id}`) : navigate("/members")} className="px-5 py-2.5 rounded-lg border border-[#EAD3DA] text-[13px] font-medium text-[#2B1420]">
             Cancel
           </button>
           <button onClick={handleSubmit} disabled={submitting} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium disabled:opacity-60">
-            <PlusCircle size={15} /> {submitting ? "Adding..." : "Add Member"}
+            {isEdit ? <Save size={15} /> : <PlusCircle size={15} />}
+            {submitting ? "Saving..." : isEdit ? "Save Changes" : "Add Member"}
           </button>
         </div>
       </div>

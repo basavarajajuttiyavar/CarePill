@@ -49,6 +49,8 @@ export const api = {
   // doctors
   getDoctors: () => request("/doctors"),
   addDoctor: (payload) => request("/doctors", { method: "POST", body: payload }),
+  updateDoctor: (id, payload) => request(`/doctors/${id}`, { method: "PATCH", body: payload }),
+  deleteDoctor: (id) => request(`/doctors/${id}`, { method: "DELETE" }),
 
   // dashboard
   getToday: () => request("/dashboard/today"),

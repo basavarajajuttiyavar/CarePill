@@ -47,4 +47,38 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// PATCH /doctors/:id
+router.patch("/:id", async (req, res) => {
+  const fields = ["doctor_name", "specialization", "hospital", "clinic", "city", "state", "phone"];
+  const updates = fields.filter((f) => f in req.body);
+  if (updates.length === 0) return res.status(400).json({ error: "No updatable fields provided" });
+
+  const setClause = updates.map((f, i) => `${f} = $${i + 1}`).join(", ");
+  const values = updates.map((f) => req.body[f]);
+
+  try {
+    const result = await pool.query(
+      `UPDATE Doctor SET ${setClause} WHERE doctor_id = $${updates.length + 1} RETURNING *`,
+      [...values, req.params.id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: "Doctor not found" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not update doctor" });
+  }
+});
+
+// DELETE /doctors/:id
+router.delete("/:id", async (req, res) => {
+  try {
+    const result = await pool.query("DELETE FROM Doctor WHERE doctor_id = $1 RETURNING doctor_id", [req.params.id]);
+    if (!result.rows[0]) return res.status(404).json({ error: "Doctor not found" });
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not delete doctor" });
+  }
+});
+
 export default router;

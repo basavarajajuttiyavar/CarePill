@@ -33,6 +33,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/members" element={<Members />} />
           <Route path="/members/new" element={<AddMember />} />
+          <Route path="/members/:id/edit" element={<AddMember />} />
           <Route path="/members/:id/medicines/new" element={<AddMedicine />} />
           <Route path="/members/:id" element={<MemberProfile />} />
           <Route path="/emergency-card/:id" element={<EmergencyCard />} />
