@@ -23,8 +23,15 @@ export function requireAuth(req, res, next) {
 // Restricts a mutating route to family admins (TRD Section 6: role checks
 // enforced server-side, not just hidden in the UI).
 export function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({ error: "Admin role required for this action" });
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Requires admin privileges" });
+  }
+  next();
+}
+
+export function requireSuperAdmin(req, res, next) {
+  if (req.user.role !== "super_admin") {
+    return res.status(403).json({ error: "Requires super admin privileges" });
   }
   next();
 }

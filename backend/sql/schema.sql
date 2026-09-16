@@ -6,7 +6,7 @@ CREATE TABLE Family (
   family_id     SERIAL PRIMARY KEY,
   family_name   VARCHAR(100) NOT NULL,
   created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
-  status        VARCHAR(20) NOT NULL DEFAULT 'active'
+  status        VARCHAR(20) NOT NULL DEFAULT 'pending'
 );
 
 CREATE TABLE FamilyMember (
@@ -20,6 +20,7 @@ CREATE TABLE FamilyMember (
   email                     VARCHAR(150),
   blood_group               VARCHAR(5),
   allergies                 VARCHAR(255),
+  chronic_conditions        VARCHAR(255),
   emergency_contact_name    VARCHAR(100),
   emergency_contact_phone   VARCHAR(15),
   created_at                TIMESTAMP NOT NULL DEFAULT NOW()
@@ -31,10 +32,11 @@ CREATE TABLE AuthUser (
   name           VARCHAR(100) NOT NULL,
   email          VARCHAR(150) NOT NULL UNIQUE,
   password_hash  VARCHAR(255) NOT NULL,
-  role           VARCHAR(20) NOT NULL DEFAULT 'admin', -- admin | member
-  family_id      INT NOT NULL REFERENCES Family(family_id) ON DELETE CASCADE,
+  role           VARCHAR(20) NOT NULL DEFAULT 'admin', -- super_admin | admin | member
+  phone          VARCHAR(20),
+  family_id      INT REFERENCES Family(family_id) ON DELETE CASCADE,
   member_id      INT REFERENCES FamilyMember(member_id) ON DELETE SET NULL,
-  status         VARCHAR(20) NOT NULL DEFAULT 'active',
+  status         VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending | active | rejected
   created_at     TIMESTAMP NOT NULL DEFAULT NOW(),
   last_login     TIMESTAMP
 );

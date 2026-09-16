@@ -13,7 +13,7 @@ router.get("/dashboard/today", async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT dl.dose_log_id, dl.scheduled_time, dl.status, dl.logged_at,
-              m.medicine_id, m.medicine_name, m.dosage,
+              m.medicine_id, m.medicine_name, m.dosage, m.reason,
               fm.member_id, fm.name AS member_name
        FROM DoseLog dl
        JOIN Medicine m ON m.medicine_id = dl.medicine_id

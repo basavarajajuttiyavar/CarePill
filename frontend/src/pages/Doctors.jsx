@@ -124,12 +124,14 @@ export default function Doctors() {
             <p className="text-[13px] text-[#8A6A75] mt-1">View and manage your trusted doctors.</p>
           </div>
         </div>
-        <button 
-          onClick={() => { setIsAdding(true); setIsEditing(false); setForm({ doctor_name: "", specialization: "", hospital: "", clinic: "", city: "", state: "", phone: "" }); setSelectedDoctor(null); }}
-          className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium"
-        >
-          <PlusCircle size={15} /> Add Doctor
-        </button>
+        {getSessionUser()?.role === "admin" && (
+          <button 
+            onClick={() => { setIsAdding(true); setIsEditing(false); setForm({ doctor_name: "", specialization: "", hospital: "", clinic: "", city: "", state: "", phone: "" }); setSelectedDoctor(null); }}
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium"
+          >
+            <PlusCircle size={15} /> Add Doctor
+          </button>
+        )}
       </div>
 
       <div className="flex-1 grid grid-cols-[1fr_2fr] gap-8 min-h-0">
@@ -236,30 +238,34 @@ export default function Doctors() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button 
-                    onClick={startEdit}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E9AFC0] rounded-lg text-[13px] font-medium text-rose hover:bg-[#FDF0F3]"
-                  >
-                    <Pencil size={15} /> Edit
-                  </button>
-                  <div className="relative">
-                    <button 
-                      onClick={() => setShowMenu(!showMenu)}
-                      className="p-2 border border-border bg-white rounded-lg text-[#8A6A75] hover:border-[#EAD3DA]"
-                    >
-                      <MoreVertical size={20} />
-                    </button>
-                    {showMenu && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-10">
+                  {getSessionUser()?.role === "admin" && (
+                    <>
+                      <button 
+                        onClick={startEdit}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E9AFC0] rounded-lg text-[13px] font-medium text-rose hover:bg-[#FDF0F3]"
+                      >
+                        <Pencil size={15} /> Edit
+                      </button>
+                      <div className="relative">
                         <button 
-                          onClick={handleDeleteDoctor}
-                          className="w-full flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 text-left font-medium"
+                          onClick={() => setShowMenu(!showMenu)}
+                          className="p-2 border border-border bg-white rounded-lg text-[#8A6A75] hover:border-[#EAD3DA]"
                         >
-                          <Trash2 size={16} /> Delete Doctor
+                          <MoreVertical size={20} />
                         </button>
+                        {showMenu && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-10">
+                            <button 
+                              onClick={handleDeleteDoctor}
+                              className="w-full flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 text-left font-medium"
+                            >
+                              <Trash2 size={16} /> Delete Doctor
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
 

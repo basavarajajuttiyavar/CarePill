@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Pill, Search, PlusCircle, ChevronRight, Filter } from "lucide-react";
-import { api } from "../api";
+import { api, getSessionUser } from "../api";
 import { useNavigate } from "react-router-dom";
 import Avatar from "../components/Avatar";
 
@@ -47,12 +47,14 @@ export default function Medicines() {
             <p className="text-[13px] text-[#8A6A75] mt-1">All active medicines across your family.</p>
           </div>
         </div>
-        <button 
-          onClick={() => navigate("/members")}
-          className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium"
-        >
-          <PlusCircle size={15} /> Add Medicine
-        </button>
+        {getSessionUser()?.role === "admin" && (
+          <button 
+            onClick={() => navigate("/members")}
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium"
+          >
+            <PlusCircle size={15} /> Add Medicine
+          </button>
+        )}
       </div>
 
       <div className="flex items-center gap-4 mb-8">

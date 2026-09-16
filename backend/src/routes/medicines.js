@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { pool } from "../db.js";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -44,7 +44,7 @@ router.get("/members/:id/medicines", async (req, res) => {
 });
 
 // POST /medicines
-router.post("/medicines", async (req, res) => {
+router.post("/medicines", requireAdmin, async (req, res) => {
   const {
     member_id, medicine_name, medicine_type, dosage, frequency, quantity,
     reason, start_date, end_date, expiry_date, prescription_type, doctor_id, notes,
@@ -92,7 +92,7 @@ router.get("/medicines/:id", async (req, res) => {
 });
 
 // PATCH /medicines/:id
-router.patch("/medicines/:id", async (req, res) => {
+router.patch("/medicines/:id", requireAdmin, async (req, res) => {
   const fields = [
     "medicine_name", "medicine_type", "dosage", "frequency", "quantity", "reason",
     "start_date", "end_date", "expiry_date", "prescription_type", "doctor_id", "notes",
@@ -122,7 +122,7 @@ router.patch("/medicines/:id", async (req, res) => {
 });
 
 // DELETE /medicines/:id
-router.delete("/medicines/:id", async (req, res) => {
+router.delete("/medicines/:id", requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       `DELETE FROM Medicine m USING FamilyMember fm

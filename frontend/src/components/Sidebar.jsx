@@ -2,12 +2,12 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import {
   Home, Users, Pill, CalendarClock, History as HistoryIcon, Stethoscope,
-  Contact, Settings, LogOut, ShieldCheck,
+  Contact, Settings, LogOut, ShieldCheck, FileCheck
 } from "lucide-react";
-import { clearSession } from "../api";
+import { clearSession, getSessionUser } from "../api";
 import { useNavigate } from "react-router-dom";
 
-const NAV_ITEMS = [
+const FAMILY_NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: Home, end: true },
   { to: "/members", label: "Family Members", icon: Users },
   { to: "/medicines", label: "Medicines", icon: Pill },
@@ -18,8 +18,18 @@ const NAV_ITEMS = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
+const SUPER_ADMIN_NAV_ITEMS = [
+  { to: "/superadmin/dashboard", label: "Overview", icon: Home },
+  { to: "/superadmin/approvals", label: "Pending Approvals", icon: FileCheck },
+  { to: "/superadmin/families", label: "Manage Families", icon: Users },
+];
+
 export default function Sidebar() {
   const navigate = useNavigate();
+  const user = getSessionUser();
+  const isSuperAdmin = user?.role === "super_admin";
+
+  const NAV_ITEMS = isSuperAdmin ? SUPER_ADMIN_NAV_ITEMS : FAMILY_NAV_ITEMS;
 
   const handleLogout = () => {
     clearSession();
@@ -38,6 +48,14 @@ export default function Sidebar() {
         </div>
       </div>
 
+      {isSuperAdmin && (
+        <div className="px-5 mb-4">
+          <div className="bg-white/10 rounded-lg px-3 py-2 text-[12px] font-medium text-[#F2A6BE] uppercase tracking-wider text-center">
+            Super Admin
+          </div>
+        </div>
+      )}
+
       <nav className="flex-1 px-3 space-y-1 mt-2">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
@@ -46,7 +64,7 @@ export default function Sidebar() {
             end={end}
             className={({ isActive }) =>
               `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] transition-colors ${
-                isActive ? "bg-white text-maroon font-medium" : "text-white/85 hover:bg-white/10"
+                isActive ? "bg-rose text-white font-medium" : "text-white/85 hover:bg-white/10"
               }`
             }
           >

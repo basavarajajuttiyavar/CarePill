@@ -17,11 +17,34 @@ import Settings from "./pages/Settings";
 import Medicines from "./pages/Medicines";
 import MedicineProfile from "./pages/MedicineProfile";
 
+import Register from "./pages/Register";
+import RegisterMember from "./pages/RegisterMember";
+import PendingApproval from "./pages/PendingApproval";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+import SuperAdminOverview from "./pages/SuperAdminOverview";
+import SuperAdminFamilies from "./pages/SuperAdminFamilies";
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/register-member" element={<RegisterMember />} />
+        <Route path="/pending" element={<ProtectedRoute><PendingApproval /></ProtectedRoute>} />
+
+        {/* Super Admin Layout */}
+        <Route
+          element={
+            <ProtectedRoute requireSuperAdmin>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/superadmin/dashboard" element={<SuperAdminOverview />} />
+          <Route path="/superadmin/approvals" element={<SuperAdminDashboard />} />
+          <Route path="/superadmin/families" element={<SuperAdminFamilies />} />
+        </Route>
 
         <Route
           element={

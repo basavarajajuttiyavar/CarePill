@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { pool } from "../db.js";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST /doctors
-router.post("/", async (req, res) => {
+router.post("/", requireAdmin, async (req, res) => {
   const { doctor_name, specialization, hospital, clinic, city, state, phone } = req.body;
   if (!doctor_name) return res.status(400).json({ error: "doctor_name is required" });
 
@@ -48,7 +48,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // PATCH /doctors/:id
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", requireAdmin, async (req, res) => {
   const fields = ["doctor_name", "specialization", "hospital", "clinic", "city", "state", "phone"];
   const updates = fields.filter((f) => f in req.body);
   if (updates.length === 0) return res.status(400).json({ error: "No updatable fields provided" });
@@ -70,7 +70,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // DELETE /doctors/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   try {
     const result = await pool.query("DELETE FROM Doctor WHERE doctor_id = $1 RETURNING doctor_id", [req.params.id]);
     if (!result.rows[0]) return res.status(404).json({ error: "Doctor not found" });

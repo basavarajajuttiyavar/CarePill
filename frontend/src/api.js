@@ -28,6 +28,8 @@ export const api = {
   // auth
   login: (email, password) => request("/auth/login", { method: "POST", body: { email, password }, auth: false }),
   register: (payload) => request("/auth/register", { method: "POST", body: payload, auth: false }),
+  getActiveFamilies: () => request("/auth/families", { auth: false }),
+  registerMember: (payload) => request("/auth/register-member", { method: "POST", body: payload, auth: false }),
 
   // family + members
   getFamily: () => request("/family"),
@@ -35,6 +37,9 @@ export const api = {
   getMember: (id) => request(`/family/members/${id}`),
   updateMember: (id, payload) => request(`/family/members/${id}`, { method: "PATCH", body: payload }),
   deleteMember: (id) => request(`/family/members/${id}`, { method: "DELETE" }),
+  getPendingMembers: () => request("/family/pending-members"),
+  approveMember: (id) => request(`/family/pending-members/${id}/approve`, { method: "POST" }),
+  rejectMember: (id) => request(`/family/pending-members/${id}/reject`, { method: "POST" }),
 
   // medicines
   getMedicines: (memberId, status) =>
@@ -59,6 +64,16 @@ export const api = {
   // emergency card
   getEmergencyCard: (memberId) => request(`/members/${memberId}/emergency-card`),
   shareEmergencyCard: (memberId) => request(`/members/${memberId}/emergency-card/share`, { method: "POST" }),
+
+  // super admin
+  getPendingRequests: () => request("/superadmin/requests"),
+  approveRequest: (id) => request(`/superadmin/requests/${id}/approve`, { method: "POST" }),
+  rejectRequest: (id) => request(`/superadmin/requests/${id}/reject`, { method: "POST" }),
+  getSuperAdminStats: () => request("/superadmin/stats"),
+  getFamilies: () => request("/superadmin/families"),
+  suspendFamily: (id) => request(`/superadmin/families/${id}/suspend`, { method: "POST" }),
+  reactivateFamily: (id) => request(`/superadmin/families/${id}/reactivate`, { method: "POST" }),
+  deleteFamily: (id) => request(`/superadmin/families/${id}`, { method: "DELETE" }),
 };
 
 export function saveSession(token, user) {

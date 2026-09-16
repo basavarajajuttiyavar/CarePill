@@ -89,7 +89,7 @@ export default function Today() {
               <div>
                 <div className="text-[15px] font-semibold text-[#2B1420]">{d.member_name}</div>
                 <div className="text-[14px] text-[#2B1420] mt-0.5">{d.medicine_name}</div>
-                <div className="text-[12px] text-[#8A6A75] mt-1">For {d.medicine_name.includes('Telma') ? 'Hypertension' : d.medicine_name.includes('Metformin') ? 'Diabetes' : 'General Health'}</div>
+                <div className="text-[12px] text-[#8A6A75] mt-1">For {d.reason || 'General Health'}</div>
               </div>
             </div>
 

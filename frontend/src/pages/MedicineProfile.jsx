@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Pill, Pencil, MoreVertical, Clock, FileText, Bell, BarChart2, CheckCircle2, XCircle, CircleDashed, ChevronRight, History as HistoryIcon, Trash2 } from "lucide-react";
-import { api } from "../api";
+import { api, getSessionUser } from "../api";
 
 export default function MedicineProfile() {
   const { id } = useParams();
@@ -64,31 +64,35 @@ export default function MedicineProfile() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate(`/medicines/${id}/edit`)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E9AFC0] rounded-lg text-[13px] font-medium text-rose hover:bg-[#FDF0F3]"
-          >
-            <Pencil size={15} /> Edit Medicine
-          </button>
-          
-          <div className="relative">
-            <button 
-              onClick={() => setShowMenu(!showMenu)}
-              className="p-2 border border-border bg-white rounded-lg text-[#8A6A75] hover:border-[#EAD3DA]"
-            >
-              <MoreVertical size={20} />
-            </button>
-            {showMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-10">
+          {getSessionUser()?.role === "admin" && (
+            <>
+              <button 
+                onClick={() => navigate(`/medicines/${id}/edit`)}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E9AFC0] rounded-lg text-[13px] font-medium text-rose hover:bg-[#FDF0F3]"
+              >
+                <Pencil size={15} /> Edit Medicine
+              </button>
+              
+              <div className="relative">
                 <button 
-                  onClick={handleDelete}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 text-left font-medium"
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-2 border border-border bg-white rounded-lg text-[#8A6A75] hover:border-[#EAD3DA]"
                 >
-                  <Trash2 size={16} /> Delete Medicine
+                  <MoreVertical size={20} />
                 </button>
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg overflow-hidden z-10">
+                    <button 
+                      onClick={handleDelete}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 text-left font-medium"
+                    >
+                      <Trash2 size={16} /> Delete Medicine
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
 

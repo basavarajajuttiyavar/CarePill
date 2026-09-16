@@ -1,32 +1,54 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, MoreVertical, Droplet, ShieldCheck } from "lucide-react";
-import { api } from "../api";
+import { Plus, Search, MoreVertical, Droplet, ShieldCheck, CheckCircle2, XCircle } from "lucide-react";
+import { api, getSessionUser } from "../api";
 import Avatar from "../components/Avatar";
 import { calcAge, formatDate } from "../utils";
 
 export default function Members() {
   const navigate = useNavigate();
   const [members, setMembers] = useState([]);
+  const [pendingMembers, setPendingMembers] = useState([]);
   const [medicineCounts, setMedicineCounts] = useState({});
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const user = getSessionUser();
+
+  const fetchMembers = async () => {
+    const data = await api.getFamily();
+    setMembers(data.members || []);
+    const counts = {};
+    await Promise.all(
+      (data.members || []).map(async (m) => {
+        const meds = await api.getMedicines(m.member_id, "active");
+        counts[m.member_id] = meds.length;
+      })
+    );
+    setMedicineCounts(counts);
+    
+    if (user.role === 'admin') {
+      const pending = await api.getPendingMembers();
+      setPendingMembers(pending);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      const data = await api.getFamily();
-      setMembers(data.members || []);
-      const counts = {};
-      await Promise.all(
-        (data.members || []).map(async (m) => {
-          const meds = await api.getMedicines(m.member_id, "active");
-          counts[m.member_id] = meds.length;
-        })
-      );
-      setMedicineCounts(counts);
-      setLoading(false);
-    })();
+    fetchMembers().then(() => setLoading(false));
   }, []);
+
+  const handleApprove = async (id) => {
+    if (confirm("Approve this member?")) {
+      await api.approveMember(id);
+      fetchMembers();
+    }
+  };
+
+  const handleReject = async (id) => {
+    if (confirm("Reject this member request?")) {
+      await api.rejectMember(id);
+      fetchMembers();
+    }
+  };
 
   const filtered = useMemo(
     () => members.filter((m) => m.name.toLowerCase().includes(query.toLowerCase())),
@@ -42,10 +64,38 @@ export default function Members() {
           <h1 className="text-[22px] font-semibold text-[#2B1420]">My Family Members</h1>
           <p className="text-[13px] text-[#8A6A75] mt-1">Manage your family members and their health information.</p>
         </div>
-        <button onClick={() => navigate("/members/new")} className="flex items-center gap-1.5 text-[13px] font-medium text-white bg-rose px-4 py-2.5 rounded-lg">
-          <Plus size={15} /> Add Family Member
-        </button>
+        {user.role === "admin" && (
+          <button onClick={() => navigate("/members/new")} className="flex items-center gap-1.5 text-[13px] font-medium text-white bg-rose px-4 py-2.5 rounded-lg">
+            <Plus size={15} /> Add Family Member
+          </button>
+        )}
       </div>
+
+      {user.role === "admin" && pendingMembers.length > 0 && (
+        <div className="bg-[#FFF5F8] border border-[#FAD2CF] rounded-2xl overflow-hidden mb-6">
+          <div className="px-5 py-3 border-b border-[#FAD2CF] bg-[#FCE8E6]">
+            <h2 className="text-[14px] font-bold text-[#C5221F]">Pending Join Requests ({pendingMembers.length})</h2>
+          </div>
+          <div className="divide-y divide-[#FAD2CF]">
+            {pendingMembers.map(pm => (
+              <div key={pm.auth_user_id} className="p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-[14px] font-semibold text-[#2B1420]">{pm.name}</div>
+                  <div className="text-[12px] text-[#8A6A75]">{pm.email} {pm.phone ? \• \\ : ""}</div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleApprove(pm.auth_user_id)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#CEEAD6] text-[#137333] hover:bg-[#E6F4EA]">
+                    <CheckCircle2 size={14} /> Approve
+                  </button>
+                  <button onClick={() => handleReject(pm.auth_user_id)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#FAD2CF] text-[#C5221F] hover:bg-[#FCE8E6]">
+                    <XCircle size={14} /> Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-border overflow-hidden">
         <div className="p-4 border-b border-border">
@@ -97,10 +147,10 @@ export default function Members() {
                 </td>
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => navigate(`/members/${m.member_id}`)} className="text-[12px] font-medium text-rose border border-[#E9AFC0] px-3 py-1.5 rounded-lg">
+                    <button onClick={() => navigate(\/members/\\)} className="text-[12px] font-medium text-rose border border-[#E9AFC0] px-3 py-1.5 rounded-lg">
                       View Profile
                     </button>
-                    <MoreVertical size={16} className="text-[#8A6A75]" />
+                    {user.role === "admin" && <MoreVertical size={16} className="text-[#8A6A75]" />}
                   </div>
                 </td>
               </tr>

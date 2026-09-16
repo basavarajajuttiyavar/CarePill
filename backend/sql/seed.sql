@@ -1,6 +1,6 @@
 -- Sample data matching the Sharma Family mockups, for local dev/demo.
 
-INSERT INTO Family (family_name) VALUES ('Sharma Family');
+INSERT INTO Family (family_name, status) VALUES ('Sharma Family', 'active');
 
 INSERT INTO FamilyMember (family_id, name, date_of_birth, gender, relationship, phone, blood_group, allergies)
 VALUES
@@ -10,8 +10,12 @@ VALUES
   (1, 'Rohan Sharma', '2012-06-05', 'Male', 'Son', NULL, 'O+', NULL);
 
 -- password_hash below is a bcrypt hash of 'password123' — dev only, never use in production
-INSERT INTO AuthUser (name, email, password_hash, role, family_id, member_id)
-VALUES ('Neha Sharma', 'neha@example.com', '$2b$10$ner1q9T3WerWZlf2yE1z6OOyg6Lx4b605m5WopIMatYGijjVndCoG', 'admin', 1, NULL);
+INSERT INTO AuthUser (name, email, password_hash, role, family_id, member_id, status)
+VALUES ('Neha Sharma', 'neha@example.com', '$2b$10$ner1q9T3WerWZlf2yE1z6OOyg6Lx4b605m5WopIMatYGijjVndCoG', 'admin', 1, NULL, 'active');
+
+-- Add default super admin
+INSERT INTO AuthUser (name, email, password_hash, role, status)
+VALUES ('Super Admin', 'superadmin@fmt.com', '$2b$10$RzKnRK/7ljauIWQEjaXevevu1qlaazRtewIyBeoiHKXmDnz0mPl7.', 'super_admin', 'active');
 
 INSERT INTO Doctor (doctor_name, specialization, hospital, city, state, phone)
 VALUES

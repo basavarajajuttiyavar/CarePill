@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Pencil, Droplet, ShieldCheck, CalendarClock, Pill, Plus, Check, Clock, Sun, Moon } from "lucide-react";
-import { api } from "../api";
+import { api, getSessionUser } from "../api";
 import Avatar from "../components/Avatar";
 import { calcAge, formatDate } from "../utils";
 
@@ -49,7 +49,7 @@ export default function MemberProfile() {
 
   const allergies = (member.allergies || "").split(",").map((a) => a.trim()).filter(Boolean);
   // Using an ad-hoc field here as it doesn't exist in DB schema, for UI mockup purposes
-  const chronicConditions = (member.chronic_conditions || "Hypertension (High Blood Pressure)").split(",").map((c) => c.trim()).filter(Boolean);
+  const chronicConditions = (member.chronic_conditions || "").split(",").map((c) => c.trim()).filter(Boolean);
 
   // Format time for 12hr AM/PM
   const formatTime = (timeStr) => {
@@ -85,24 +85,28 @@ export default function MemberProfile() {
             </div>
           </div>
           <div className="flex items-center gap-2 relative">
-            <button 
-              onClick={() => navigate(`/members/${id}/edit`)}
-              className="flex items-center gap-1.5 text-[13px] font-medium text-rose border border-[#E9AFC0] px-3.5 py-2 rounded-lg"
-            >
-              <Pencil size={14} /> Edit Profile
-            </button>
-            <button 
-              onClick={async () => {
-                if (confirm("Are you sure you want to delete this member? All their medicines will be deleted too.")) {
-                  await api.deleteMember(id);
-                  navigate("/members");
-                }
-              }}
-              className="flex items-center justify-center p-2 border border-border rounded-lg text-red-500 hover:bg-red-50"
-              title="Delete Member"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-            </button>
+            {getSessionUser()?.role === "admin" && (
+              <>
+                <button 
+                  onClick={() => navigate(`/members/${id}/edit`)}
+                  className="flex items-center gap-1.5 text-[13px] font-medium text-rose border border-[#E9AFC0] px-3.5 py-2 rounded-lg"
+                >
+                  <Pencil size={14} /> Edit Profile
+                </button>
+                <button 
+                  onClick={async () => {
+                    if (confirm("Are you sure you want to delete this member? All their medicines will be deleted too.")) {
+                      await api.deleteMember(id);
+                      navigate("/members");
+                    }
+                  }}
+                  className="flex items-center justify-center p-2 border border-border rounded-lg text-red-500 hover:bg-red-50"
+                  title="Delete Member"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -188,9 +192,11 @@ export default function MemberProfile() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[14px] font-semibold text-[#2B1420]">Medicines for {member.name}</h3>
-              <button onClick={() => navigate(`/members/${id}/medicines/new`)} className="flex items-center gap-1.5 text-[13px] font-medium text-white bg-rose px-3.5 py-2 rounded-lg">
-                <Plus size={14} /> Add Medicine
-              </button>
+              {getSessionUser()?.role === "admin" && (
+                <button onClick={() => navigate(`/members/${id}/medicines/new`)} className="flex items-center gap-1.5 text-[13px] font-medium text-white bg-rose px-3.5 py-2 rounded-lg">
+                  <Plus size={14} /> Add Medicine
+                </button>
+              )}
             </div>
             <div className="space-y-2">
               {medicines.map((m) => (
@@ -231,9 +237,11 @@ export default function MemberProfile() {
               </div>
             </div>
           </div>
-          <button className="flex items-center gap-1.5 text-[13px] font-medium text-rose border border-[#E9AFC0] px-3.5 py-2 rounded-lg bg-white">
-            <Plus size={14} /> Add Emergency Contact
-          </button>
+          {getSessionUser()?.role === "admin" && (
+            <button className="flex items-center gap-1.5 text-[13px] font-medium text-rose border border-[#E9AFC0] px-3.5 py-2 rounded-lg bg-white">
+              <Plus size={14} /> Add Emergency Contact
+            </button>
+          )}
         </div>
       </div>
     </div>

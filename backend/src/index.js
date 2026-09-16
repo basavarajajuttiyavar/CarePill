@@ -16,10 +16,13 @@ app.use(express.json());
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
+import superAdminRoutes from "./routes/superadmin.js";
+
 app.use("/auth", authRoutes);
 app.use("/family", familyRoutes);
 app.use("/", medicineRoutes);   // exposes /members/:id/medicines, /medicines, /medicines/:id/dose-log
 app.use("/doctors", doctorRoutes);
+app.use("/superadmin", superAdminRoutes);
 app.use("/", dashboardRoutes);  // exposes /dashboard/today, /analytics/medicines, /members/:id/emergency-card
 app.use("/", publicRouter);     // exposes /public/emergency-card/:token (no auth)
 
