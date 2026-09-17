@@ -12,9 +12,7 @@ export default function RegisterMember() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    api.getActiveFamilies().then(setFamilies).catch(console.error);
-  }, []);
+
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -51,7 +49,7 @@ export default function RegisterMember() {
 
         <h2 className="text-[32px] font-bold text-[#6D1B36] mb-2 text-center">Join your<br/>family account</h2>
         <p className="text-[16px] text-[#8A6A75] mb-12 text-center max-w-sm">
-          Select your family from the list and create your personal login credentials.
+          Enter your unique Family ID to request access and create your personal login credentials.
         </p>
 
         <div className="flex items-center gap-3 px-6 py-4 bg-[#FFE8EE] rounded-xl text-[13px] text-[#6D1B36]">
@@ -73,16 +71,13 @@ export default function RegisterMember() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-[13px] font-medium text-[#2B1420] mb-2">Select Family</label>
-              <select
+              <label className="block text-[13px] font-medium text-[#2B1420] mb-2">Family ID</label>
+              <input
+                type="number"
                 required value={form.family_id} onChange={update("family_id")}
-                className="w-full border border-[#EAD3DA] rounded-xl px-4 py-3 text-[14px] outline-none focus:border-rose bg-white"
-              >
-                <option value="" disabled>Choose your family...</option>
-                {families.map(f => (
-                  <option key={f.family_id} value={f.family_id}>{f.family_name}</option>
-                ))}
-              </select>
+                className="w-full border border-[#EAD3DA] rounded-xl px-4 py-3 text-[14px] outline-none focus:border-rose placeholder-[#B58C97]"
+                placeholder="Enter the unique Family ID (ask your Family Admin)"
+              />
             </div>
             <div>
               <label className="block text-[13px] font-medium text-[#2B1420] mb-2">Your Name</label>

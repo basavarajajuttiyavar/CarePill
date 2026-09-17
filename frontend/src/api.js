@@ -20,7 +20,15 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   if (res.status === 204) return null;
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  if (!res.ok) {
+    if (data.code === "ACCOUNT_SUSPENDED" || res.status === 401) {
+      clearSession();
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
   return data;
 }
 

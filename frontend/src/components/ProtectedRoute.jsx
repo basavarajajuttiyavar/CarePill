@@ -17,11 +17,13 @@ export default function ProtectedRoute({ children, requireSuperAdmin = false }) 
     return <Navigate to="/superadmin/approvals" replace />;
   }
 
-  if (user.status === "pending" && location.pathname !== "/pending") {
+  const isPending = user.status === "pending" || user.status === "pending_member";
+
+  if (isPending && location.pathname !== "/pending") {
     return <Navigate to="/pending" replace />;
   }
 
-  if (user.status !== "pending" && location.pathname === "/pending") {
+  if (!isPending && location.pathname === "/pending") {
     return <Navigate to="/" replace />;
   }
 

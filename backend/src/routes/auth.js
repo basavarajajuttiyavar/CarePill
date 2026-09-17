@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
     const user = result.rows[0];
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
 
-    if (user.status === 'suspended' || user.family_status === 'suspended') {
+    if (user.family_status === 'suspended') {
       return res.status(403).json({ error: "Your family account has been suspended by the Super Admin." });
     }
     if (user.family_status === 'rejected') {
@@ -119,7 +119,7 @@ router.post("/refresh", async (req, res) => {
     );
     const userStatus = result.rows[0]?.user_status;
     const familyStatus = result.rows[0]?.family_status;
-    if (!userStatus || userStatus === 'suspended' || userStatus === 'rejected' || familyStatus === 'suspended') throw new Error("Account unavailable");
+    if (!userStatus || userStatus === 'rejected' || familyStatus === 'suspended') throw new Error("Account unavailable");
 
     const newToken = signToken({
       auth_user_id: payload.auth_user_id,
@@ -154,6 +154,14 @@ router.post("/register-member", async (req, res) => {
 
   const client = await pool.connect();
   try {
+    const familyCheck = await client.query("SELECT status FROM Family WHERE family_id = $1", [family_id]);
+    if (familyCheck.rows.length === 0) {
+      return res.status(404).json({ error: "No family found with that ID" });
+    }
+    if (familyCheck.rows[0].status !== 'active') {
+      return res.status(403).json({ error: "This family is not active" });
+    }
+
     const password_hash = await bcrypt.hash(password, 10);
     const user = await client.query(
       `INSERT INTO AuthUser (name, email, password_hash, role, family_id, status, phone)

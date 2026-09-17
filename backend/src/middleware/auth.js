@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
 
+import { pool } from "../db.js";
+
 // Verifies the JWT and attaches { auth_user_id, family_id, role, member_id }
 // to req.user. Every downstream route reads family_id from req.user —
 // never from a client-supplied parameter (TRD Section 4 & 6).
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
 
@@ -13,6 +15,16 @@ export function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Immediately block suspended/deleted families for active sessions
+    if (payload.role !== 'super_admin') {
+      const result = await pool.query("SELECT status FROM Family WHERE family_id = $1", [payload.family_id]);
+      const familyStatus = result.rows[0]?.status;
+      if (!familyStatus || familyStatus === 'suspended' || familyStatus === 'rejected') {
+        return res.status(403).json({ error: "Your family account is no longer active.", code: "ACCOUNT_SUSPENDED" });
+      }
+    }
+
     req.user = payload;
     next();
   } catch (err) {

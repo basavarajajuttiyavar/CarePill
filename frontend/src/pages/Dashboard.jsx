@@ -11,6 +11,7 @@ export default function Dashboard() {
   const user = getSessionUser();
   const [members, setMembers] = useState([]);
   const [today, setToday] = useState([]);
+  const [pendingMembers, setPendingMembers] = useState([]);
   const [medicineCounts, setMedicineCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -21,6 +22,13 @@ export default function Dashboard() {
         const [familyData, todayData] = await Promise.all([api.getFamily(), api.getToday()]);
         setMembers(familyData.members || []);
         setToday(todayData || []);
+
+        if (user.role === 'admin') {
+          try {
+            const pending = await api.getPendingMembers();
+            setPendingMembers(pending);
+          } catch (e) {}
+        }
 
         const counts = {};
         await Promise.all(
@@ -54,6 +62,23 @@ export default function Dashboard() {
         <StatCard icon={Pill} iconBg="#FBE3EA" value={activeMedicineTotal} label="Active Medicines" sub="Across all members" onClick={() => navigate("/medicines")} />
         <StatCard icon={CalendarClock} iconBg="#FCEFD8" value={today.length} label="Medicines Today" sub="To be taken" onClick={() => navigate("/today")} />
       </div>
+
+      {pendingMembers.length > 0 && (
+        <div className="bg-[#FFF5F8] border border-[#FAD2CF] rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#FCE8E6] rounded-full flex items-center justify-center text-[#C5221F]">
+              <Users size={20} />
+            </div>
+            <div>
+              <div className="text-[14px] font-bold text-[#C5221F]">Pending Join Requests</div>
+              <div className="text-[13px] text-[#8A6A75]">You have {pendingMembers.length} member{pendingMembers.length > 1 ? 's' : ''} waiting to join your family.</div>
+            </div>
+          </div>
+          <button onClick={() => navigate("/members")} className="text-[13px] font-medium bg-white text-[#C5221F] border border-[#FAD2CF] px-4 py-2 rounded-lg hover:bg-[#FCE8E6]">
+            Review Requests
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-[1.3fr_1fr] gap-6">
         <div className="bg-white rounded-2xl border border-border">
@@ -110,7 +135,25 @@ export default function Dashboard() {
                       <div className="text-[13px] font-medium text-[#2B1420]">{d.medicine_name} - {d.dosage}</div>
                     </div>
                   </div>
-                  {d.status === "taken" ? <CheckCircle2 size={18} className="text-green-500" /> : <Bell size={16} className="text-rose" />}
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={async () => {
+                        const newStatus = d.status === 'taken' ? 'missed' : 'taken';
+                        setToday(today.map(item => item.dose_log_id === d.dose_log_id ? { ...item, status: newStatus } : item));
+                        try {
+                          await api.logDose(d.medicine_id, { status: newStatus, scheduled_time: d.scheduled_time });
+                        } catch (err) {
+                          const todayData = await api.getToday();
+                          setToday(todayData || []);
+                        }
+                      }}
+                      className="transition-transform hover:scale-110"
+                    >
+                      {d.status === "taken" 
+                        ? <CheckCircle2 size={24} className="text-green-500" /> 
+                        : <Bell size={22} className="text-[#8A6A75] hover:text-rose transition-colors" />}
+                    </button>
+                  </div>
                 </div>
               );
             })}

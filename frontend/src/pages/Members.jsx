@@ -63,6 +63,12 @@ export default function Members() {
         <div>
           <h1 className="text-[22px] font-semibold text-[#2B1420]">My Family Members</h1>
           <p className="text-[13px] text-[#8A6A75] mt-1">Manage your family members and their health information.</p>
+          {user.role === "admin" && (
+            <div className="mt-2 inline-flex items-center gap-2 bg-[#FCE8E6] text-[#C5221F] px-3 py-1.5 rounded-lg border border-[#FAD2CF] text-[13px] font-medium">
+              <span>Your Family ID: <strong>{user.family_id}</strong></span>
+              <span className="text-[12px] opacity-80">(Share this ID with family members so they can join)</span>
+            </div>
+          )}
         </div>
         {user.role === "admin" && (
           <button onClick={() => navigate("/members/new")} className="flex items-center gap-1.5 text-[13px] font-medium text-white bg-rose px-4 py-2.5 rounded-lg">
@@ -81,7 +87,7 @@ export default function Members() {
               <div key={pm.auth_user_id} className="p-4 flex items-center justify-between">
                 <div>
                   <div className="text-[14px] font-semibold text-[#2B1420]">{pm.name}</div>
-                  <div className="text-[12px] text-[#8A6A75]">{pm.email} {pm.phone ? \• \\ : ""}</div>
+                  <div className="text-[12px] text-[#8A6A75]">{pm.email} {pm.phone ? `• ${pm.phone}` : ""}</div>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => handleApprove(pm.auth_user_id)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#CEEAD6] text-[#137333] hover:bg-[#E6F4EA]">
@@ -147,7 +153,7 @@ export default function Members() {
                 </td>
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => navigate(\/members/\\)} className="text-[12px] font-medium text-rose border border-[#E9AFC0] px-3 py-1.5 rounded-lg">
+                    <button onClick={() => navigate(`/members/${m.member_id}`)} className="text-[12px] font-medium text-rose border border-[#E9AFC0] px-3 py-1.5 rounded-lg">
                       View Profile
                     </button>
                     {user.role === "admin" && <MoreVertical size={16} className="text-[#8A6A75]" />}

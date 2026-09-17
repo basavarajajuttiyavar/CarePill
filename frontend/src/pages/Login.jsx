@@ -135,11 +135,6 @@ export default function Login() {
             </div>
           </form>
         </div>
-        
-        <div className="absolute bottom-8 left-0 right-0 text-center w-full lg:w-1/2 lg:ml-auto">
-          <span className="text-[13px] text-[#8A6A75]">Already registered? </span>
-          <Link to="/login" className="text-[13px] font-semibold text-rose">Check approval status</Link>
-        </div>
       </div>
     </div>
   );
