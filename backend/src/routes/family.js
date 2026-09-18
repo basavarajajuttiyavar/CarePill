@@ -120,6 +120,7 @@ router.get("/pending-members", requireAdmin, async (req, res) => {
 // POST /family/pending-members/:id/approve
 router.post("/pending-members/:id/approve", requireAdmin, async (req, res) => {
   const { id } = req.params;
+  const { existing_member_id } = req.body || {};
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -129,21 +130,35 @@ router.post("/pending-members/:id/approve", requireAdmin, async (req, res) => {
     if (userRes.rows.length === 0) throw new Error("Pending member not found");
     const user = userRes.rows[0];
 
-    // Create a FamilyMember record for them
-    const memberRes = await client.query(
-      "INSERT INTO FamilyMember (family_id, name, email, phone) VALUES ($1, $2, $3, $4) RETURNING member_id",
-      [req.user.family_id, user.name, user.email, user.phone]
-    );
-    const newMemberId = memberRes.rows[0].member_id;
+    let targetMemberId = existing_member_id;
+
+    if (!targetMemberId) {
+      // Create a new FamilyMember record for them
+      const memberRes = await client.query(
+        "INSERT INTO FamilyMember (family_id, name, email, phone) VALUES ($1, $2, $3, $4) RETURNING member_id",
+        [req.user.family_id, user.name, user.email, user.phone]
+      );
+      targetMemberId = memberRes.rows[0].member_id;
+    } else {
+      // Ensure the existing member actually belongs to this family
+      const checkMember = await client.query("SELECT member_id FROM FamilyMember WHERE member_id = $1 AND family_id = $2", [targetMemberId, req.user.family_id]);
+      if (checkMember.rows.length === 0) throw new Error("Target member not found in this family");
+      
+      // Update the existing member's email/phone to match the AuthUser if they were null
+      await client.query(
+        "UPDATE FamilyMember SET email = COALESCE(email, $1), phone = COALESCE(phone, $2) WHERE member_id = $3",
+        [user.email, user.phone, targetMemberId]
+      );
+    }
 
     // Update AuthUser
     await client.query(
       "UPDATE AuthUser SET status = 'active', member_id = $1 WHERE auth_user_id = $2",
-      [newMemberId, id]
+      [targetMemberId, id]
     );
 
     await client.query("COMMIT");
-    res.json({ success: true, member_id: newMemberId });
+    res.json({ success: true, member_id: targetMemberId });
   } catch (err) {
     await client.query("ROLLBACK");
     console.error(err);

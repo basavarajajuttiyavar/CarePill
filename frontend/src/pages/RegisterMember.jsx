@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ShieldCheck, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { api, saveSession } from "../api";
 
 export default function RegisterMember() {
-  const [families, setFamilies] = useState([]);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "", family_id: "" });
+  const [searchParams] = useSearchParams();
+  const initialFamilyId = searchParams.get("family_id") || "";
+  
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "", family_id: initialFamilyId });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 

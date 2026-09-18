@@ -46,7 +46,10 @@ export const api = {
   updateMember: (id, payload) => request(`/family/members/${id}`, { method: "PATCH", body: payload }),
   deleteMember: (id) => request(`/family/members/${id}`, { method: "DELETE" }),
   getPendingMembers: () => request("/family/pending-members"),
-  approveMember: (id) => request(`/family/pending-members/${id}/approve`, { method: "POST" }),
+  approveMember: (id, existingMemberId = null) => request(`/family/pending-members/${id}/approve`, {
+    method: "POST",
+    body: JSON.stringify({ existing_member_id: existingMemberId }),
+  }),
   rejectMember: (id) => request(`/family/pending-members/${id}/reject`, { method: "POST" }),
 
   // medicines

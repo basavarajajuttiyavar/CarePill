@@ -36,15 +36,40 @@ export default function Members() {
     fetchMembers().then(() => setLoading(false));
   }, []);
 
-  const handleApprove = async (id) => {
-    if (confirm("Approve this member?")) {
-      await api.approveMember(id);
+  const handleApprove = async (id, name) => {
+    // Check if there are any members in the family we can link to
+    const linkable = members.filter(m => !m.email); // Naive check: members without an email are likely manual profiles
+    
+    let existingId = null;
+    if (linkable.length > 0) {
+      const msg = `Approve ${name}?\n\nDo you want to link this login to an EXISTING member profile? \nType their number to link, or leave blank to create a brand new profile:\n` 
+        + linkable.map((m, i) => `${i + 1}. ${m.name}`).join("\n");
+      
+      const res = prompt(msg);
+      if (res === null) return; // Cancelled
+      
+      if (res.trim() !== "") {
+        const idx = parseInt(res.trim(), 10) - 1;
+        if (idx >= 0 && idx < linkable.length) {
+          existingId = linkable[idx].member_id;
+        } else {
+          alert("Invalid selection. Creating as a new profile instead.");
+        }
+      }
+    } else {
+      if (!confirm(`Approve ${name} and add them to your family?`)) return;
+    }
+
+    try {
+      await api.approveMember(id, existingId);
       fetchMembers();
+    } catch (err) {
+      alert("Failed to approve: " + err.message);
     }
   };
 
-  const handleReject = async (id) => {
-    if (confirm("Reject this member request?")) {
+  const handleReject = async (id, name) => {
+    if (confirm(`Reject ${name}'s request?`)) {
       await api.rejectMember(id);
       fetchMembers();
     }
@@ -64,9 +89,13 @@ export default function Members() {
           <h1 className="text-[22px] font-semibold text-[#2B1420]">My Family Members</h1>
           <p className="text-[13px] text-[#8A6A75] mt-1">Manage your family members and their health information.</p>
           {user.role === "admin" && (
-            <div className="mt-2 inline-flex items-center gap-2 bg-[#FCE8E6] text-[#C5221F] px-3 py-1.5 rounded-lg border border-[#FAD2CF] text-[13px] font-medium">
+            <div className="mt-2 inline-flex flex-col gap-1 bg-[#FCE8E6] text-[#C5221F] px-4 py-2 rounded-lg border border-[#FAD2CF] text-[13px] font-medium">
               <span>Your Family ID: <strong>{user.family_id}</strong></span>
-              <span className="text-[12px] opacity-80">(Share this ID with family members so they can join)</span>
+              <span className="text-[12px] opacity-90">Invite Link: 
+                <a href={`/register-member?family_id=${user.family_id}`} className="ml-1 underline font-bold" target="_blank" rel="noreferrer">
+                  {window.location.origin}/register-member?family_id={user.family_id}
+                </a>
+              </span>
             </div>
           )}
         </div>
@@ -90,10 +119,10 @@ export default function Members() {
                   <div className="text-[12px] text-[#8A6A75]">{pm.email} {pm.phone ? `• ${pm.phone}` : ""}</div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => handleApprove(pm.auth_user_id)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#CEEAD6] text-[#137333] hover:bg-[#E6F4EA]">
+                  <button onClick={() => handleApprove(pm.auth_user_id, pm.name)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#CEEAD6] text-[#137333] hover:bg-[#E6F4EA]">
                     <CheckCircle2 size={14} /> Approve
                   </button>
-                  <button onClick={() => handleReject(pm.auth_user_id)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#FAD2CF] text-[#C5221F] hover:bg-[#FCE8E6]">
+                  <button onClick={() => handleReject(pm.auth_user_id, pm.name)} className="flex items-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded bg-white border border-[#FAD2CF] text-[#C5221F] hover:bg-[#FCE8E6]">
                     <XCircle size={14} /> Reject
                   </button>
                 </div>
