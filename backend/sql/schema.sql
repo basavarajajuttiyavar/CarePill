@@ -2,11 +2,12 @@
 -- Matches medication_tracker_database_tables.pdf exactly, with FK/constraints
 -- added for integrity (per TRD Section 3 & 8).
 
-CREATE TABLE Family (
-  family_id     SERIAL PRIMARY KEY,
-  family_name   VARCHAR(100) NOT NULL,
-  created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
-  status        VARCHAR(20) NOT NULL DEFAULT 'pending'
+CREATE TABLE IF NOT EXISTS Family (
+    family_id SERIAL PRIMARY KEY,
+    family_name VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'pending', 'rejected')),
+    invite_code VARCHAR(6) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE FamilyMember (
@@ -30,10 +31,10 @@ CREATE INDEX idx_familymember_family_id ON FamilyMember(family_id);
 CREATE TABLE AuthUser (
   auth_user_id   SERIAL PRIMARY KEY,
   name           VARCHAR(100) NOT NULL,
-  email          VARCHAR(150) NOT NULL UNIQUE,
+  email          VARCHAR(150) UNIQUE,
   password_hash  VARCHAR(255) NOT NULL,
   role           VARCHAR(20) NOT NULL DEFAULT 'admin', -- super_admin | admin | member
-  phone          VARCHAR(20),
+  phone          VARCHAR(20) NOT NULL UNIQUE,
   family_id      INT REFERENCES Family(family_id) ON DELETE CASCADE,
   member_id      INT REFERENCES FamilyMember(member_id) ON DELETE SET NULL,
   status         VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending | active | rejected
@@ -41,6 +42,12 @@ CREATE TABLE AuthUser (
   last_login     TIMESTAMP
 );
 CREATE INDEX idx_authuser_family_id ON AuthUser(family_id);
+
+CREATE TABLE OtpVerification (
+    phone VARCHAR(20) PRIMARY KEY,
+    otp VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL
+);
 
 CREATE TABLE Doctor (
   doctor_id       SERIAL PRIMARY KEY,

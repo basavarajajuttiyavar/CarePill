@@ -21,7 +21,7 @@ export async function requireAuth(req, res, next) {
       const result = await pool.query("SELECT status FROM Family WHERE family_id = $1", [payload.family_id]);
       const familyStatus = result.rows[0]?.status;
       if (!familyStatus || familyStatus === 'suspended' || familyStatus === 'rejected') {
-        return res.status(403).json({ error: "Your family account is no longer active.", code: "ACCOUNT_SUSPENDED" });
+        return res.status(403).json({ error: "Family account is deactivated. To activate please connect with operation team archanagowdas2005@gmail.com", code: "ACCOUNT_SUSPENDED" });
       }
     }
 

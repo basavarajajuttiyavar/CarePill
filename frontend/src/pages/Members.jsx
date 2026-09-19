@@ -90,10 +90,10 @@ export default function Members() {
           <p className="text-[13px] text-[#8A6A75] mt-1">Manage your family members and their health information.</p>
           {user.role === "admin" && (
             <div className="mt-2 inline-flex flex-col gap-1 bg-[#FCE8E6] text-[#C5221F] px-4 py-2 rounded-lg border border-[#FAD2CF] text-[13px] font-medium">
-              <span>Your Family ID: <strong>{user.family_id}</strong></span>
+              <span>Your Family ID (Invite Code): <strong>{user.invite_code || user.family_id}</strong></span>
               <span className="text-[12px] opacity-90">Invite Link: 
-                <a href={`/register-member?family_id=${user.family_id}`} className="ml-1 underline font-bold" target="_blank" rel="noreferrer">
-                  {window.location.origin}/register-member?family_id={user.family_id}
+                <a href={`/register-member?family_id=${user.invite_code || user.family_id}`} className="ml-1 underline font-bold" target="_blank" rel="noreferrer">
+                  {window.location.origin}/register-member?family_id={user.invite_code || user.family_id}
                 </a>
               </span>
             </div>

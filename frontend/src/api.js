@@ -34,7 +34,8 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
 
 export const api = {
   // auth
-  login: (email, password) => request("/auth/login", { method: "POST", body: { email, password }, auth: false }),
+  sendOtp: (phone) => request("/auth/send-otp", { method: "POST", body: { phone }, auth: false }),
+  login: (phone, password) => request("/auth/login", { method: "POST", body: { phone, password }, auth: false }),
   register: (payload) => request("/auth/register", { method: "POST", body: payload, auth: false }),
   getActiveFamilies: () => request("/auth/families", { auth: false }),
   registerMember: (payload) => request("/auth/register-member", { method: "POST", body: payload, auth: false }),
