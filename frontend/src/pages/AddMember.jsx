@@ -28,7 +28,8 @@ export default function AddMember() {
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [loading, setLoading] = useState(isEdit);
+  const [loading, setLoading] = useState(true);
+  const [draftData, setDraftData] = useState(null);
 
   useEffect(() => {
     if (isEdit) {
@@ -53,8 +54,26 @@ export default function AddMember() {
         setError(err.message);
         setLoading(false);
       });
+    } else {
+      api.getMemberDraft().then(draft => {
+        if (draft && Object.keys(draft).length > 0) {
+          setDraftData(draft);
+        }
+      }).finally(() => setLoading(false));
     }
   }, [id, isEdit]);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (isEdit || loading) return;
+    const timeoutId = setTimeout(() => {
+      const isEmpty = !Object.values(form).find(v => v !== "");
+      if (!isEmpty) {
+        api.saveMemberDraft(form).catch(console.error);
+      }
+    }, 2000);
+    return () => clearTimeout(timeoutId);
+  }, [form, isEdit, loading]);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -71,8 +90,21 @@ export default function AddMember() {
         navigate(`/members/${id}`);
       } else {
         await api.addMember(form);
+        await api.deleteMemberDraft().catch(console.error);
         navigate("/members");
       }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    setSubmitting(true);
+    try {
+      await api.saveMemberDraft(form);
+      navigate("/members");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -83,7 +115,7 @@ export default function AddMember() {
   if (loading) return <div className="p-8 text-[13px] text-[#8A6A75]">Loading...</div>;
 
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-6xl mx-auto w-full">
       <button onClick={() => isEdit ? navigate(`/members/${id}`) : navigate("/members")} className="flex items-center gap-1.5 text-[13px] text-rose font-medium mb-3">
         <ArrowLeft size={15} /> Back to {isEdit ? "Profile" : "Members"}
       </button>
@@ -92,7 +124,29 @@ export default function AddMember() {
         {isEdit ? "Update member's information." : "Add a new member to your family to manage their medicines and health information."}
       </p>
 
-      <div className="bg-white rounded-2xl border border-border p-6 space-y-8 max-w-4xl">
+      {draftData && (
+        <div className="bg-[#FFF5F8] border border-[#E9AFC0] rounded-xl px-5 py-4 flex items-center justify-between mb-6 shadow-sm">
+          <div className="text-[13.5px] text-[#2B1420]">
+            <span className="font-semibold text-rose">Unsaved Draft found!</span> You have an unfinished Family Member addition.
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => { api.deleteMemberDraft().then(() => setDraftData(null)); }}
+              className="text-[12.5px] font-medium text-[#8A6A75] hover:text-[#5A3B45] underline"
+            >
+              Discard
+            </button>
+            <button
+              onClick={() => { setForm(draftData); setDraftData(null); }}
+              className="bg-rose text-white text-[12.5px] font-medium px-4 py-1.5 rounded flex items-center gap-1 hover:bg-[#B31B49] transition-colors"
+            >
+              Continue Draft
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl border border-border p-8 space-y-8 shadow-sm">
         <section>
           <h2 className="flex items-center gap-2 text-[14px] font-semibold text-rose mb-4">
             <Users size={16} /> Personal Information
@@ -186,14 +240,22 @@ export default function AddMember() {
 
         {error && <p className="text-[12px] text-red-600">{error}</p>}
 
-        <div className="flex justify-end gap-3 pt-2 border-t border-border">
-          <button onClick={() => isEdit ? navigate(`/members/${id}`) : navigate("/members")} className="px-5 py-2.5 rounded-lg border border-[#EAD3DA] text-[13px] font-medium text-[#2B1420]">
-            Cancel
-          </button>
-          <button onClick={handleSubmit} disabled={submitting} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium disabled:opacity-60">
-            {isEdit ? <Save size={15} /> : <PlusCircle size={15} />}
-            {submitting ? "Saving..." : isEdit ? "Save Changes" : "Add Member"}
-          </button>
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          {!isEdit ? (
+            <button onClick={handleSaveDraft} disabled={submitting} className="text-rose text-[13px] font-medium px-4 py-2 hover:bg-[#FFF5F8] rounded transition-colors disabled:opacity-60">
+              Save as Draft
+            </button>
+          ) : <div />}
+
+          <div className="flex gap-3">
+            <button onClick={() => isEdit ? navigate(`/members/${id}`) : navigate("/members")} className="px-5 py-2.5 rounded-lg border border-[#EAD3DA] text-[13px] font-medium text-[#2B1420]">
+              Cancel
+            </button>
+            <button onClick={handleSubmit} disabled={submitting} className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-rose text-white text-[13px] font-medium disabled:opacity-60">
+              {isEdit ? <Save size={15} /> : <PlusCircle size={15} />}
+              {submitting ? "Saving..." : isEdit ? "Save Changes" : "Add Member"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

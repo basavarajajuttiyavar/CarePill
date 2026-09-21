@@ -62,7 +62,7 @@ export default function SuperAdminFamilies() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-border">
         {/* Table Header */}
-        <div className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr] px-6 py-4 border-b border-border text-[13px] font-medium text-[#8A6A75]">
+        <div className="grid grid-cols-[2.5fr_2fr_1fr_1fr_0.8fr] gap-4 px-6 py-4 border-b border-border text-[13px] font-medium text-[#8A6A75]">
           <div>Family Name</div>
           <div>Admin Details</div>
           <div>Members</div>
@@ -73,21 +73,21 @@ export default function SuperAdminFamilies() {
         {/* Table Body */}
         <div className="divide-y divide-[#F6E8ED]">
           {families.map((r) => (
-            <div key={r.family_id} className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr] items-center px-6 py-5">
+            <div key={r.family_id} className="grid grid-cols-[2.5fr_2fr_1fr_1fr_0.8fr] gap-4 items-center px-6 py-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#FFE8EE] flex items-center justify-center text-rose shrink-0">
                   <Home size={18} />
                 </div>
                 <div>
-                  <div className="font-semibold text-[#2B1420] text-[15px]">{r.family_name}</div>
+                  <div className="font-semibold text-[#2B1420] text-[16px]">{r.family_name}</div>
                   <div className="text-[#8A6A75] text-[12px]">family_id: {r.family_id}</div>
                 </div>
               </div>
 
               <div>
-                <div className="font-semibold text-[#2B1420] text-[14px]">{r.admin_name}</div>
-                <div className="text-[#8A6A75] text-[13px]">{r.email}</div>
-                <div className="text-[#8A6A75] text-[13px]">{r.phone || "No phone"}</div>
+                <div className="font-semibold text-[#2B1420] text-[15px]">{r.admin_name}</div>
+                <div className="text-[#8A6A75] text-[14px]">{r.email}</div>
+                <div className="text-[#8A6A75] text-[14px]">{r.phone || "No phone"}</div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -97,37 +97,39 @@ export default function SuperAdminFamilies() {
               </div>
 
               <div>
-                <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium border ${
-                  r.status === 'active' ? 'bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]' :
+                <span className={`inline-flex px-2.5 py-1 rounded-full text-[12px] font-medium border ${r.status === 'active' ? 'bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]' :
                   r.status === 'suspended' ? 'bg-[#FFF3E0] text-[#E65100] border-[#FFE0B2]' :
-                  'bg-[#FCE8E6] text-[#C5221F] border-[#FAD2CF]'
-                }`}>
+                    'bg-[#FCE8E6] text-[#C5221F] border-[#FAD2CF]'
+                  }`}>
                   {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
                 </span>
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
                 {r.status === 'active' && (
-                  <button 
+                  <button
                     onClick={() => handleSuspend(r.family_id)}
-                    className="flex items-center justify-center gap-1.5 border border-[#FFE0B2] text-[#E65100] bg-white hover:bg-[#FFF3E0] px-4 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                    title="Suspend"
+                    className="flex items-center justify-center border border-[#FFE0B2] text-[#E65100] bg-white hover:bg-[#FFF3E0] p-2 rounded-lg transition-colors"
                   >
-                    <Ban size={14} /> Suspend
+                    <Ban size={16} />
                   </button>
                 )}
                 {r.status === 'suspended' && (
-                  <button 
+                  <button
                     onClick={() => handleReactivate(r.family_id)}
-                    className="flex items-center justify-center gap-1.5 border border-[#CEEAD6] text-[#137333] bg-white hover:bg-[#E6F4EA] px-4 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                    title="Reactivate"
+                    className="flex items-center justify-center border border-[#CEEAD6] text-[#137333] bg-white hover:bg-[#E6F4EA] p-2 rounded-lg transition-colors"
                   >
-                    <Users size={14} /> Reactivate
+                    <Users size={16} />
                   </button>
                 )}
-                <button 
+                <button
                   onClick={() => handleDelete(r.family_id)}
-                  className="flex items-center justify-center gap-1.5 border border-[#FAD2CF] text-[#C5221F] bg-white hover:bg-[#FCE8E6] px-4 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                  title="Delete"
+                  className="flex items-center justify-center border border-[#FAD2CF] text-[#C5221F] bg-white hover:bg-[#FCE8E6] p-2 rounded-lg transition-colors"
                 >
-                  <Trash2 size={14} /> Delete
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

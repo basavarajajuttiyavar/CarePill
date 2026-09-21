@@ -19,7 +19,7 @@ const FAMILY_NAV_ITEMS = [
 ];
 
 const SUPER_ADMIN_NAV_ITEMS = [
-  { to: "/superadmin/dashboard", label: "Overview", icon: Home },
+  { to: "/superadmin/dashboard", label: "Dashboard", icon: Home },
   { to: "/superadmin/approvals", label: "Pending Approvals", icon: FileCheck },
   { to: "/superadmin/families", label: "Manage Families", icon: Users },
 ];
@@ -63,8 +63,7 @@ export default function Sidebar() {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] transition-colors ${
-                isActive ? "bg-rose text-white font-medium" : "text-white/85 hover:bg-white/10"
+              `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] transition-colors ${isActive ? "bg-rose text-white font-medium" : "text-white/85 hover:bg-white/10"
               }`
             }
           >
@@ -73,13 +72,6 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-
-      <div className="px-3 pb-6 pt-2 border-t border-white/10 mt-2">
-        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] text-white/85 hover:bg-white/10">
-          <LogOut size={18} />
-          Logout
-        </button>
-      </div>
     </aside>
   );
 }

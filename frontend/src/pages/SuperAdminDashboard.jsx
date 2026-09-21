@@ -53,7 +53,7 @@ export default function SuperAdminDashboard() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-border">
         {/* Table Header */}
-        <div className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr] px-6 py-4 border-b border-border text-[13px] font-medium text-[#8A6A75]">
+        <div className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_100px] px-6 py-3 border-b border-border text-[13px] font-medium text-[#8A6A75]">
           <div>Family Name</div>
           <div>Admin Details</div>
           <div>Members</div>
@@ -64,7 +64,7 @@ export default function SuperAdminDashboard() {
         {/* Table Body */}
         <div className="divide-y divide-[#F6E8ED]">
           {requests.map((r) => (
-            <div key={r.family_id} className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr] items-center px-6 py-5">
+            <div key={r.family_id} className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_100px] items-center px-6 py-2.5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#FFE8EE] flex items-center justify-center text-rose shrink-0">
                   <Home size={18} />
@@ -99,18 +99,18 @@ export default function SuperAdminDashboard() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <button 
+              <div className="flex items-center gap-2">
+                <button
                   onClick={() => handleApprove(r.family_id)}
-                  className="flex items-center justify-center gap-1.5 border border-green-500 text-green-600 bg-white hover:bg-green-50 px-4 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                  className="flex items-center justify-center border border-green-500 text-green-600 bg-white hover:bg-green-50 w-8 h-8 rounded-lg transition-colors shadow-sm"
                 >
-                  <Check size={14} /> Approve
+                  <Check size={16} />
                 </button>
-                <button 
+                <button
                   onClick={() => handleReject(r.family_id)}
-                  className="flex items-center justify-center gap-1.5 border border-[#E9AFC0] text-rose bg-white hover:bg-[#FFF5F8] px-4 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                  className="flex items-center justify-center border border-[#E9AFC0] text-rose bg-white hover:bg-[#FFF5F8] w-8 h-8 rounded-lg transition-colors shadow-sm"
                 >
-                  <X size={14} /> Reject
+                  <X size={16} />
                 </button>
               </div>
             </div>
@@ -125,7 +125,7 @@ export default function SuperAdminDashboard() {
 
       <div className="mt-8 text-center flex flex-col items-center">
         <div className="w-12 h-12 bg-[#FFE8EE] rounded-xl flex items-center justify-center mb-3 text-rose">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
         </div>
         <div className="text-[13px] text-[#8A6A75]">Review each request carefully before taking action.</div>
       </div>

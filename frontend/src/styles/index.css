@@ -6,3 +6,15 @@ body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   background: #fdf5f7;
 }
+
+/* 
+  Global Layout Override: 
+  Overrides the hardcoded 'max-w-4xl' / 'max-w-5xl' etc classes on individual pages 
+  to properly use available horizontal desktop space as requested, while keeping them centered.
+*/
+.page-content-wrapper > div {
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}

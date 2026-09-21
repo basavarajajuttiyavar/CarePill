@@ -42,6 +42,9 @@ export const api = {
 
   // family + members
   getFamily: () => request("/family"),
+  getMemberDraft: () => request("/family/members/draft"),
+  saveMemberDraft: (payload) => request("/family/members/draft", { method: "POST", body: payload }),
+  deleteMemberDraft: () => request("/family/members/draft", { method: "DELETE" }),
   addMember: (payload) => request("/family/members", { method: "POST", body: payload }),
   getMember: (id) => request(`/family/members/${id}`),
   updateMember: (id, payload) => request(`/family/members/${id}`, { method: "PATCH", body: payload }),
