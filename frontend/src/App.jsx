@@ -24,6 +24,7 @@ import PendingApproval from "./pages/PendingApproval";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SuperAdminOverview from "./pages/SuperAdminOverview";
 import SuperAdminFamilies from "./pages/SuperAdminFamilies";
+import SuperAdminLogs from "./pages/SuperAdminLogs";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/superadmin/dashboard" element={<SuperAdminOverview />} />
           <Route path="/superadmin/approvals" element={<SuperAdminDashboard />} />
           <Route path="/superadmin/families" element={<SuperAdminFamilies />} />
+          <Route path="/superadmin/logs" element={<SuperAdminLogs />} />
         </Route>
 
         <Route

@@ -27,7 +27,7 @@ export default function Dashboard() {
           try {
             const pending = await api.getPendingMembers();
             setPendingMembers(pending);
-          } catch (e) {}
+          } catch (e) { }
         }
 
         const counts = {};
@@ -54,7 +54,8 @@ export default function Dashboard() {
   return (
     <div className="p-8 space-y-6">
       <div>
-        <h1 className="text-[22px] font-semibold text-[#2B1420]">Good morning, {user?.name?.split(" ")[0] || "there"} 👋</h1>
+        <h1 className="text-[22px] font-semibold text-[#2B1420]">Family Health Overview</h1>
+        <p className="text-[13px] text-[#8A6A75] mt-1">Manage your family’s health, medicines, and medical information in one place.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -136,7 +137,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button 
+                    <button
                       onClick={async () => {
                         const newStatus = d.status === 'taken' ? 'missed' : 'taken';
                         setToday(today.map(item => item.dose_log_id === d.dose_log_id ? { ...item, status: newStatus } : item));
@@ -149,8 +150,8 @@ export default function Dashboard() {
                       }}
                       className="transition-transform hover:scale-110"
                     >
-                      {d.status === "taken" 
-                        ? <CheckCircle2 size={24} className="text-green-500" /> 
+                      {d.status === "taken"
+                        ? <CheckCircle2 size={24} className="text-green-500" />
                         : <Bell size={22} className="text-[#8A6A75] hover:text-rose transition-colors" />}
                     </button>
                   </div>

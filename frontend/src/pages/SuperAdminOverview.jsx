@@ -72,7 +72,7 @@ export default function SuperAdminOverview() {
           {stats.recentActivity.map((r, i) => (
             <div key={i} className="px-6 py-4 flex items-center justify-between">
               <div>
-                <div className="font-semibold text-[#2B1420] text-[14px]">{r.family_name} registered an account</div>
+                <div className="font-semibold text-[#2B1420] text-[14px]">{r.description}</div>
                 <div className="text-[#8A6A75] text-[12px] mt-1">{new Date(r.created_at).toLocaleString()}</div>
               </div>
               <div className="text-[12px] font-medium px-3 py-1 rounded-full border border-border capitalize">

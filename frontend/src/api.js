@@ -85,6 +85,7 @@ export const api = {
   approveRequest: (id) => request(`/superadmin/requests/${id}/approve`, { method: "POST" }),
   rejectRequest: (id) => request(`/superadmin/requests/${id}/reject`, { method: "POST" }),
   getSuperAdminStats: () => request("/superadmin/stats"),
+  getSuperAdminLogs: () => request("/superadmin/logs"),
   getFamilies: () => request("/superadmin/families"),
   suspendFamily: (id) => request(`/superadmin/families/${id}/suspend`, { method: "POST" }),
   reactivateFamily: (id) => request(`/superadmin/families/${id}/reactivate`, { method: "POST" }),

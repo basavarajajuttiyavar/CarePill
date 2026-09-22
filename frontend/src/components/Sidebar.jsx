@@ -22,6 +22,7 @@ const SUPER_ADMIN_NAV_ITEMS = [
   { to: "/superadmin/dashboard", label: "Dashboard", icon: Home },
   { to: "/superadmin/approvals", label: "Pending Approvals", icon: FileCheck },
   { to: "/superadmin/families", label: "Manage Families", icon: Users },
+  { to: "/superadmin/logs", label: "Activity Logs", icon: HistoryIcon },
 ];
 
 export default function Sidebar() {

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { ArrowLeft, Users, Droplet, Contact, PlusCircle, Save } from "lucide-react";
+import { ArrowLeft, Users, Droplet, Contact, PlusCircle, Save, AlertCircle } from "lucide-react";
 import { api } from "../api";
 
-const inputClass = "w-full border border-[#EAD3DA] rounded-lg px-3 py-2.5 text-[13px] outline-none focus:border-rose placeholder:text-[#B58C97]";
+const getInputClass = (hasError) =>
+  `w-full border rounded-lg px-3 py-2.5 text-[13px] outline-none placeholder:text-[#B58C97] transition-colors ${hasError ? "border-red-500 focus:border-red-500 bg-[#FEF2F2]" : "border-[#EAD3DA] focus:border-rose"
+  }`;
 
 function Field({ label, required, children }) {
   return (
@@ -30,6 +32,8 @@ export default function AddMember() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [draftData, setDraftData] = useState(null);
+
+  const isFieldError = (field) => error === "Please fill in the required fields." && !form[field];
 
   useEffect(() => {
     if (isEdit) {
@@ -153,13 +157,13 @@ export default function AddMember() {
           </h2>
           <div className="grid grid-cols-4 gap-4">
             <Field label="Full Name" required>
-              <input className={inputClass} placeholder="Enter full name" value={form.name} onChange={update("name")} />
+              <input className={getInputClass(isFieldError("name"))} placeholder="Enter full name" value={form.name} onChange={update("name")} />
             </Field>
             <Field label="Date of Birth" required>
-              <input type="date" className={inputClass} value={form.date_of_birth} onChange={update("date_of_birth")} />
+              <input type="date" className={getInputClass(isFieldError("date_of_birth"))} value={form.date_of_birth} onChange={update("date_of_birth")} />
             </Field>
             <Field label="Gender" required>
-              <select className={inputClass} value={form.gender} onChange={update("gender")}>
+              <select className={getInputClass(isFieldError("gender"))} value={form.gender} onChange={update("gender")}>
                 <option value="">Select gender</option>
                 <option>Male</option>
                 <option>Female</option>
@@ -167,7 +171,7 @@ export default function AddMember() {
               </select>
             </Field>
             <Field label="Relationship" required>
-              <select className={inputClass} value={form.relationship} onChange={update("relationship")}>
+              <select className={getInputClass(isFieldError("relationship"))} value={form.relationship} onChange={update("relationship")}>
                 <option value="">Select relationship</option>
                 <option>Father</option>
                 <option>Mother</option>
@@ -180,13 +184,13 @@ export default function AddMember() {
           </div>
           <div className="grid grid-cols-3 gap-4 mt-4">
             <Field label="Phone Number">
-              <input className={inputClass} placeholder="Enter phone number" value={form.phone} onChange={update("phone")} />
+              <input className={getInputClass()} placeholder="Enter phone number" value={form.phone} onChange={update("phone")} />
             </Field>
             <Field label="Email (Optional)">
-              <input className={inputClass} placeholder="Enter email address" value={form.email} onChange={update("email")} />
+              <input className={getInputClass()} placeholder="Enter email address" value={form.email} onChange={update("email")} />
             </Field>
             <Field label="Occupation (Optional)">
-              <input className={inputClass} placeholder="Enter occupation" value={form.occupation} onChange={update("occupation")} />
+              <input className={getInputClass()} placeholder="Enter occupation" value={form.occupation} onChange={update("occupation")} />
             </Field>
           </div>
         </section>
@@ -197,17 +201,17 @@ export default function AddMember() {
           </h2>
           <div className="grid grid-cols-3 gap-4">
             <Field label="Blood Group">
-              <select className={inputClass} value={form.blood_group} onChange={update("blood_group")}>
+              <select className={getInputClass()} value={form.blood_group} onChange={update("blood_group")}>
                 <option value="">Select blood group</option>
                 {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((g) => <option key={g}>{g}</option>)}
               </select>
             </Field>
             <Field label="Allergies (If any)">
-              <input className={inputClass} placeholder="e.g. Penicillin, Pollen, Nuts" value={form.allergies} onChange={update("allergies")} />
+              <input className={getInputClass()} placeholder="e.g. Penicillin, Pollen, Nuts" value={form.allergies} onChange={update("allergies")} />
               <p className="text-[11px] text-[#B58C97] mt-1">Separate multiple allergies with commas</p>
             </Field>
             <Field label="Chronic Conditions (If any)">
-              <input className={inputClass} placeholder="e.g. Diabetes, Asthma, Hypertension" value={form.chronic_conditions} onChange={update("chronic_conditions")} />
+              <input className={getInputClass()} placeholder="e.g. Diabetes, Asthma, Hypertension" value={form.chronic_conditions} onChange={update("chronic_conditions")} />
               <p className="text-[11px] text-[#B58C97] mt-1">Separate multiple conditions with commas</p>
             </Field>
           </div>
@@ -219,10 +223,10 @@ export default function AddMember() {
           </h2>
           <div className="grid grid-cols-3 gap-4">
             <Field label="Contact Name">
-              <input className={inputClass} placeholder="Enter contact name" value={form.emergency_contact_name} onChange={update("emergency_contact_name")} />
+              <input className={getInputClass()} placeholder="Enter contact name" value={form.emergency_contact_name} onChange={update("emergency_contact_name")} />
             </Field>
             <Field label="Relationship">
-              <select className={inputClass} value={form.emergency_contact_relationship} onChange={update("emergency_contact_relationship")}>
+              <select className={getInputClass()} value={form.emergency_contact_relationship} onChange={update("emergency_contact_relationship")}>
                 <option value="">Select relationship</option>
                 <option>Father</option>
                 <option>Mother</option>
@@ -233,12 +237,17 @@ export default function AddMember() {
               </select>
             </Field>
             <Field label="Phone Number">
-              <input className={inputClass} placeholder="Enter phone number" value={form.emergency_contact_phone} onChange={update("emergency_contact_phone")} />
+              <input className={getInputClass()} placeholder="Enter phone number" value={form.emergency_contact_phone} onChange={update("emergency_contact_phone")} />
             </Field>
           </div>
         </section>
 
-        {error && <p className="text-[12px] text-red-600">{error}</p>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-[14px] font-medium flex items-center gap-2">
+            <AlertCircle size={18} />
+            {error}
+          </div>
+        )}
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
           {!isEdit ? (

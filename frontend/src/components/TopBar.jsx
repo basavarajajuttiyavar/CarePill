@@ -31,7 +31,7 @@ export default function TopBar({ familyName }) {
         <div>
           {familyName && (
             <p className="text-[13px] text-[#8A6A75]">
-              Family: <span className="text-rose font-medium">{familyName}</span>
+              Family Name: <span className="text-rose font-medium">{familyName}</span>
             </p>
           )}
         </div>
