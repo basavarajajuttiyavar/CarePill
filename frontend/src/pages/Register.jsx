@@ -89,7 +89,7 @@ export default function Register() {
               <input
                 required value={form.family_name} onChange={update("family_name")}
                 className="w-full border border-[#EAD3DA] rounded-xl px-4 py-3 text-[14px] outline-none focus:border-rose placeholder-[#B58C97]"
-                placeholder="e.g., Sharma Family"
+                placeholder="e.g., Smith Family"
                 autoComplete="off"
               />
             </div>
@@ -98,7 +98,7 @@ export default function Register() {
               <input
                 required value={form.name} onChange={update("name")}
                 className="w-full border border-[#EAD3DA] rounded-xl px-4 py-3 text-[14px] outline-none focus:border-rose placeholder-[#B58C97]"
-                placeholder="e.g., Neha Sharma"
+                placeholder="e.g., Jane Doe"
                 autoComplete="name"
               />
             </div>

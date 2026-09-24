@@ -13,7 +13,7 @@ cd backend
 cp .env.example .env        # fill in DATABASE_URL, JWT_SECRET
 npm install
 npm run migrate             # runs sql/schema.sql
-npm run seed                # optional: loads the Sharma Family sample data
+npm run seed                # optional: loads the sample demo data
 ```
 Note: `sql/seed.sql` ships with a placeholder `password_hash`. Before logging in with the seeded account, replace it with a real bcrypt hash (e.g. `node -e "console.log(require('bcrypt').hashSync('password123', 10))"`) or just register a fresh account via `POST /auth/register`.
 
@@ -37,7 +37,7 @@ Register an account (or log in with your seeded one), then the app behaves like 
 family-medicine-tracker/
 ├── backend/
 │   ├── sql/schema.sql       # exact tables from the DB PDF
-│   ├── sql/seed.sql         # sample Sharma Family data
+│   ├── sql/seed.sql         # sample demo data
 │   └── src/
 │       ├── index.js         # Express app
 │       ├── db.js            # Postgres pool

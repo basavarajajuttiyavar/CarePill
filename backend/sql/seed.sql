@@ -1,17 +1,17 @@
--- Sample data matching the Sharma Family mockups, for local dev/demo.
+-- Sample data matching the Demo Family mockups, for local dev/demo.
 
-INSERT INTO Family (family_name, status) VALUES ('Sharma Family', 'active');
+INSERT INTO Family (family_name, status) VALUES ('Demo Family', 'active');
 
 INSERT INTO FamilyMember (family_id, name, date_of_birth, gender, relationship, phone, blood_group, allergies)
 VALUES
-  (1, 'Rahul Sharma', '1979-03-12', 'Male', 'Father', '+919845011223', 'O+', 'Penicillin'),
-  (1, 'Sunita Sharma', '1981-08-25', 'Female', 'Mother', '+919845033445', 'A+', NULL),
-  (1, 'Pihu Sharma', '2009-01-10', 'Female', 'Daughter', NULL, 'B+', 'Dust'),
-  (1, 'Rohan Sharma', '2012-06-05', 'Male', 'Son', NULL, 'O+', NULL);
+  (1, 'John Doe', '1979-03-12', 'Male', 'Father', '+919845011223', 'O+', 'Penicillin'),
+  (1, 'Jane Doe', '1981-08-25', 'Female', 'Mother', '+919845033445', 'A+', NULL),
+  (1, 'Emily Doe', '2009-01-10', 'Female', 'Daughter', NULL, 'B+', 'Dust'),
+  (1, 'Michael Doe', '2012-06-05', 'Male', 'Son', NULL, 'O+', NULL);
 
 -- password_hash below is a bcrypt hash of 'password123' — dev only, never use in production
 INSERT INTO AuthUser (name, email, password_hash, role, family_id, member_id, status)
-VALUES ('Neha Sharma', 'neha@example.com', '$2b$10$ner1q9T3WerWZlf2yE1z6OOyg6Lx4b605m5WopIMatYGijjVndCoG', 'admin', 1, NULL, 'active');
+VALUES ('Admin User', 'admin@example.com', '$2b$10$ner1q9T3WerWZlf2yE1z6OOyg6Lx4b605m5WopIMatYGijjVndCoG', 'admin', 1, NULL, 'active');
 
 -- Add default super admin
 INSERT INTO AuthUser (name, email, password_hash, role, status)

@@ -98,7 +98,7 @@ export default function RegisterMember() {
               <input
                 required value={form.name} onChange={update("name")}
                 className="w-full border border-[#EAD3DA] rounded-xl px-4 py-3 text-[14px] outline-none focus:border-rose placeholder-[#B58C97]"
-                placeholder="e.g., Neha Sharma"
+                placeholder="e.g., Jane Doe"
                 autoComplete="name"
               />
             </div>
