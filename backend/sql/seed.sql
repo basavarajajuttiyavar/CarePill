@@ -10,12 +10,12 @@ VALUES
   (1, 'Michael Doe', '2012-06-05', 'Male', 'Son', NULL, 'O+', NULL);
 
 -- password_hash below is a bcrypt hash of 'password123' — dev only, never use in production
-INSERT INTO AuthUser (name, email, password_hash, role, family_id, member_id, status)
-VALUES ('Admin User', 'admin@example.com', '$2b$10$ner1q9T3WerWZlf2yE1z6OOyg6Lx4b605m5WopIMatYGijjVndCoG', 'admin', 1, NULL, 'active');
+INSERT INTO AuthUser (name, email, password_hash, role, family_id, member_id, status, phone)
+VALUES ('Neha Sharma', 'neha@example.com', '$2b$10$ner1q9T3WerWZlf2yE1z6OOyg6Lx4b605m5WopIMatYGijjVndCoG', 'admin', 1, NULL, 'active', '+919999999999');
 
 -- Add default super admin
-INSERT INTO AuthUser (name, email, password_hash, role, status)
-VALUES ('Super Admin', 'superadmin@fmt.com', '$2b$10$RzKnRK/7ljauIWQEjaXevevu1qlaazRtewIyBeoiHKXmDnz0mPl7.', 'super_admin', 'active');
+INSERT INTO AuthUser (name, email, password_hash, role, status, phone)
+VALUES ('Super Admin', 'superadmin@fmt.com', '$2b$10$OaJOF1kZVg75TxeZT60I3eRliDzynVFbbM3fTMJi8PaVM/oOFhCTu', 'super_admin', 'active', '9940234094');
 
 INSERT INTO Doctor (doctor_name, specialization, hospital, city, state, phone)
 VALUES

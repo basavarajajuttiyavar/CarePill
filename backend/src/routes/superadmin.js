@@ -12,7 +12,11 @@ router.get("/stats", async (req, res) => {
     const pendingRequests = await pool.query("SELECT COUNT(*) FROM Family WHERE status = 'pending'");
     const totalUsers = await pool.query("SELECT COUNT(*) FROM FamilyMember");
     const totalPrescriptions = await pool.query("SELECT COUNT(*) FROM Medicine");
-    const recentActivity = await pool.query("SELECT family_name, created_at, status FROM Family ORDER BY created_at DESC LIMIT 5");
+    const recentActivity = await pool.query(
+      `SELECT al.action AS description, al.created_at, al.status
+       FROM ActivityLog al
+       ORDER BY al.created_at DESC LIMIT 5`
+    );
 
     res.json({
       activeFamilies: parseInt(activeFamilies.rows[0].count),
@@ -52,6 +56,7 @@ router.post("/families/:id/suspend", async (req, res) => {
   try {
     await client.query("BEGIN");
     await client.query("UPDATE Family SET status = 'suspended' WHERE family_id = $1", [id]);
+    await client.query("INSERT INTO ActivityLog (auth_user_id, action, status) VALUES ($1, $2, 'success')", [req.user.auth_user_id, `Suspended family ${id}`]);
     await client.query("COMMIT");
     res.json({ success: true });
   } catch (err) {
@@ -70,6 +75,7 @@ router.post("/families/:id/reactivate", async (req, res) => {
   try {
     await client.query("BEGIN");
     await client.query("UPDATE Family SET status = 'active' WHERE family_id = $1", [id]);
+    await client.query("INSERT INTO ActivityLog (auth_user_id, action, status) VALUES ($1, $2, 'success')", [req.user.auth_user_id, `Reactivated family ${id}`]);
     await client.query("COMMIT");
     res.json({ success: true });
   } catch (err) {
@@ -91,6 +97,7 @@ router.delete("/families/:id", async (req, res) => {
     await pool.query("DELETE FROM FamilyMember WHERE family_id = $1", [id]);
     await pool.query("DELETE FROM AuthUser WHERE family_id = $1", [id]);
     await pool.query("DELETE FROM Family WHERE family_id = $1", [id]);
+    await pool.query("INSERT INTO ActivityLog (auth_user_id, action, status) VALUES ($1, $2, 'success')", [req.user.auth_user_id, `Deleted family ${id}`]);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -125,6 +132,7 @@ router.post("/requests/:id/approve", async (req, res) => {
     await client.query("BEGIN");
     await client.query("UPDATE Family SET status = 'active' WHERE family_id = $1", [id]);
     await client.query("UPDATE AuthUser SET status = 'active' WHERE family_id = $1 AND role = 'admin'", [id]);
+    await client.query("INSERT INTO ActivityLog (auth_user_id, action, status) VALUES ($1, $2, 'success')", [req.user.auth_user_id, `Approved family request ${id}`]);
     await client.query("COMMIT");
     res.status(200).json({ success: true });
   } catch (err) {
@@ -144,6 +152,7 @@ router.post("/requests/:id/reject", async (req, res) => {
     await client.query("BEGIN");
     await client.query("UPDATE Family SET status = 'rejected' WHERE family_id = $1", [id]);
     await client.query("UPDATE AuthUser SET status = 'rejected' WHERE family_id = $1 AND role = 'admin'", [id]);
+    await client.query("INSERT INTO ActivityLog (auth_user_id, action, status) VALUES ($1, $2, 'success')", [req.user.auth_user_id, `Rejected family request ${id}`]);
     await client.query("COMMIT");
     res.status(200).json({ success: true });
   } catch (err) {
@@ -152,6 +161,23 @@ router.post("/requests/:id/reject", async (req, res) => {
     res.status(500).json({ error: "Could not reject request" });
   } finally {
     client.release();
+  }
+});
+
+// GET /superadmin/logs — Activity Logs
+router.get("/logs", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT al.activity_log_id, al.action, al.status, al.created_at,
+              a.name AS admin_name, a.email
+       FROM ActivityLog al
+       LEFT JOIN AuthUser a ON a.auth_user_id = al.auth_user_id
+       ORDER BY al.created_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not load activity logs" });
   }
 });
 

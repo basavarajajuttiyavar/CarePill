@@ -37,12 +37,57 @@ router.post("/members", requireAdmin, async (req, res) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
        RETURNING *`,
       [req.user.family_id, name, date_of_birth, gender, relationship, phone, email,
-       blood_group, allergies, chronic_conditions, emergency_contact_name, emergency_contact_phone]
+        blood_group, allergies, chronic_conditions, emergency_contact_name, emergency_contact_phone]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not create family member" });
+  }
+});
+
+// GET /family/members/draft
+router.get("/members/draft", requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT draft_data FROM MemberDraft WHERE auth_user_id = $1",
+      [req.user.auth_user_id]
+    );
+    res.json(result.rows[0] ? result.rows[0].draft_data : null);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not load draft" });
+  }
+});
+
+// POST /family/members/draft
+router.post("/members/draft", requireAdmin, async (req, res) => {
+  try {
+    await pool.query(
+      `INSERT INTO MemberDraft (auth_user_id, draft_data, updated_at) 
+       VALUES ($1, $2, NOW()) 
+       ON CONFLICT (auth_user_id) 
+       DO UPDATE SET draft_data = EXCLUDED.draft_data, updated_at = NOW()`,
+      [req.user.auth_user_id, req.body]
+    );
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not save draft" });
+  }
+});
+
+// DELETE /family/members/draft
+router.delete("/members/draft", requireAdmin, async (req, res) => {
+  try {
+    await pool.query(
+      "DELETE FROM MemberDraft WHERE auth_user_id = $1",
+      [req.user.auth_user_id]
+    );
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not delete draft" });
   }
 });
 
@@ -124,7 +169,7 @@ router.post("/pending-members/:id/approve", requireAdmin, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    
+
     // Get the user
     const userRes = await client.query("SELECT * FROM AuthUser WHERE auth_user_id = $1 AND family_id = $2 AND status = 'pending_member'", [id, req.user.family_id]);
     if (userRes.rows.length === 0) throw new Error("Pending member not found");
@@ -143,7 +188,7 @@ router.post("/pending-members/:id/approve", requireAdmin, async (req, res) => {
       // Ensure the existing member actually belongs to this family
       const checkMember = await client.query("SELECT member_id FROM FamilyMember WHERE member_id = $1 AND family_id = $2", [targetMemberId, req.user.family_id]);
       if (checkMember.rows.length === 0) throw new Error("Target member not found in this family");
-      
+
       // Update the existing member's email/phone to match the AuthUser if they were null
       await client.query(
         "UPDATE FamilyMember SET email = COALESCE(email, $1), phone = COALESCE(phone, $2) WHERE member_id = $3",
